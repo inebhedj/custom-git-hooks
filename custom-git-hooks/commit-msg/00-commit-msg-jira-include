@@ -5,8 +5,12 @@ LC_ALL=C
 local_branch="$(git rev-parse --abbrev-ref HEAD)"
 
 jira_ticket=$(echo $local_branch | grep -e '^[A-Z][A-Z]\+-[0-9]\+\|NOJIRA' -o)
+if [ -z $jira_ticket  ] || [ $jira_ticket = "" ]; then
+    jira_ticket="NOJIRA"
+fi
+commit_check="${jira_ticket}: "
 
-if ! grep -iqE "^$commit_regex" "$1"; then
+if ! grep -iqE "^$commit_check" "$1"; then
     echo "$jira_ticket"': '$(cat "$1") > "$1"
 fi
 
