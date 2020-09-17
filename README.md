@@ -1,23 +1,33 @@
 # git-hooks
 
-Hook scripts to git based development
+Custom hook scripts to git based development
 
-## commit-msg
+## What is it?
 
-The commit message checker / modifier scripts
+This scripts regenerate your `.git/hooks/` files to directory structure, and place your old hook files into this directories. After all, this script places some custom hooks into the new hook structure.
 
-### commit-message-JIRA.sh
+## Usage
 
-This script inserts eg. JIRA card name or NOJIRA string from branch name into commit message (to the beginning), if JIRA card name or NOJIRA string not presents in comit message (at the beginning).
+Place `custom-git-hooks-install.sh` file and `custom-git-hooks/` directory (with all subdirectories and files) in your repository.
+Start installation in CLI:
+```bash
+sh custom-git-hooks-install.sh
+```
 
-Based on _pre-commit/branch-name-checker-JIRA.sh_.
+## Custom hooks in this repository
 
-Place the code from _commit-message-JIRA.sh_ into `.git/hook/commit-msg` file in your repository.
+This installation places some custom hooks into the new hook structure.
 
-## pre-commit
+### 00-pre-commit-jira-branchname
 
-The branch name checker scripts
+This hook script checks (eg.) the JIRA card name (eg: JIRA-1212) or "NOJIRA" string at beginning of the branch name, and recejts commit, if not presents.
+Original place is `custom-git-hooks/pre-commit/00-pre-commit-jira-branchname`.
+New place after installation is `.git/hooks/pre-commit.d/00-pre-commit-jira-branchname`.
 
-### pre-commit/branch-name-checker-JIRA.sh
+### 00-commit-msg-jira-include
 
-This script checks eg. JIRA card name or NOJIRA string at beginning of the branch name, and recejt commit, if not presents.
+This script inserts  (eg.) the JIRA card name (eg: JIRA-1212) or "NOJIRA" string from branch name into commit message (to the beginning), if JIRA card name or NOJIRA string not presents in commit message (at the beginning).
+Original place is `custom-git-hooks/commit-msg/00-pre-commit-jira-branchname`.
+New place after installation is `.git/hooks/commit-msg.d/00-commit-msg-jira-include`.
+
+
