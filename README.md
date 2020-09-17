@@ -29,7 +29,7 @@ New place after installation is `.git/hooks/pre-commit.d/00-pre-commit-jira-bran
 
 ### 00-commit-msg-jira-include
 
-This script inserts  (eg.) the JIRA card name (eg: JIRA-1212) or "NOJIRA" string from branch name into commit message (to the beginning), if JIRA card name or NOJIRA string not presents in commit message (at the beginning).
+This script inserts  (eg.) the JIRA card name (eg: "JIRA-1212: ") or "NOJIRA: " string from branch name into commit message (to the beginning), if JIRA card name or NOJIRA string not presents in commit message (at the beginning).
 
 Original place is `custom-git-hooks/commit-msg/00-pre-commit-jira-branchname`.
 
