@@ -4,7 +4,7 @@ Custom hook scripts to git based development
 
 ## What is it?
 
-This scripts regenerate your `.git/hooks/` files to directory structure, and place your old hook files into this directories. After all, this script places some custom hooks into the new hook structure.
+This scripts regenerates your `.git/hooks/` files to directory structure, and places your old hook files into this directories. After all, this script places some custom hooks into the new hook structure.
 
 ## Usage
 
