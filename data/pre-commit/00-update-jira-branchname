@@ -1,0 +1,73 @@
+#!/bin/sh
+
+LC_ALL=C
+
+local_branch="$(git rev-parse --abbrev-ref HEAD)"
+logQuery=$(git log --all --not $(git rev-list --no-walk --exclude=refs/heads/$local_branch --exclude=HEAD --all))
+
+valid_branch_regex='^(?:[A-Z][A-Z]+-[0-9]+|NOJIRA)-[a-zA-Z0-9-]+$'
+
+example_branch_name=${local_branch//_/-}
+example_branch_name=${example_branch_name//[^-\w]+/}
+(  echo "$example_branch_name" | grep -Eq  "$valid_branch_regex" )  && regex_check="1" || regex_check="0"
+if [ $regex_check = "0" ]
+then
+    example_branch_name="NOJIRA-$example_branch_name"
+fi
+
+msg_error="[ERROR]: There is something wrong with your new branch name: 
+
+$local_branch
+
+Branch names in this project must adhere to this contract: 
+
+$valid_branch_regex 
+
+Your commit will be rejected. 
+
+You should rename the branch so that it starts with the name of the JIRA card (eg: JIRA-1234) or the string NOJIRA,
+contains only alphanumeric characters (0-9a-zA-Z) and hyphens (-) and try again, eg:
+
+git branch -m NOJIRA-$example_branch_name
+"
+
+msg_notice="[NOTICE]: This (old) branch does not comply our branch name rules:
+
+$valid_branch_regex
+
+Rules: branch name starts with the name of the JIRA card (eg: JIRA-1234) or the string NOJIRA,
+contains only alphanumeric characters (0-9a-zA-Z) and hyphens (-).
+
+However: commit continues.
+"
+
+if [ "$local_branch" = "master" ]; then
+    exec < /dev/tty
+    while true; do
+        read -p "[WARNING] Are You sure You want to commit into master? (y/N) " yn
+        if [ "$yn" = "" ]; then
+            yn='N'
+        fi
+        case $yn in
+            [Yy] ) echo "Your answer is Yes: commit continues."; exit 0; break;;
+            [Nn] ) echo "Your answer is No: commit is rejected."; exit 1;;
+            * ) echo "Please answer y or n for yes or no.";;
+        esac
+    done
+else
+    (  echo "$local_branch" | grep -Eq  "$valid_branch_regex" )  && regex_check="1" || regex_check="0"
+    if [ -z "$logQuery" ]; then 
+        
+        if [ $regex_check = "0" ]
+        then
+            echo "$msg_error"
+            exit 1
+        fi
+    else
+        if [ $regex_check = "0" ]
+        then
+            echo "$msg_notice"
+        fi
+    fi
+fi
+exit 0
