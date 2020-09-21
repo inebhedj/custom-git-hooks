@@ -34,5 +34,3 @@ This script inserts  (eg.) the JIRA card name (eg: "JIRA-1212: ") or "NOJIRA: " 
 Original place is `custom-git-hooks/commit-msg/00-pre-commit-jira-branchname`.
 
 New place after installation is `.git/hooks/commit-msg.d/00-commit-msg-jira-include`.
-
-
