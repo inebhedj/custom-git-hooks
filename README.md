@@ -8,7 +8,7 @@ This scripts regenerates your `.git/hooks/` files to directory structure, and pl
 
 ## Usage
 
-Place `custom-git-hooks-install.sh` file and `custom-git-hooks/` directory (with all subdirectories and files) in your repository.
+Place `custom-git-hooks-install.sh` file and `custom-git-hooks/` directory (with all subdirectories and files) into your repository.
 
 Start installation in CLI:
 ```bash
