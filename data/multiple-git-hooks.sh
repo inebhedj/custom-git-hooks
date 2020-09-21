@@ -17,11 +17,14 @@ if [ -d "$hook_dir" ]; then
   
   for hook in $(ls -p $hook_dir/ | grep -v / | sort -V); do
     hook_file="$(basename $hook)"
+    
+    (  echo "$hook_file" | grep -Eq  "$sample_backup_regex" )  && regex_check="1" || regex_check="0"
+    
+    if [ $regex_check = "0" ]; then
 
-    if [[ ! $hook_file =~ $sample_backup_regex ]]; then
-
-      echo "Running $hook_name/$hook_file hook"
-      echo "$stdin" | $hook "$@"
+      hook_cmd="$hook_dir/$hook_file"
+      echo "Running $hook_cmd hook"
+      echo "$stdin" | $hook_cmd "$@"
 
       exit_code=$?
 
