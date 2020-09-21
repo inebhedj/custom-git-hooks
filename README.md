@@ -1,4 +1,4 @@
-# git-hooks
+# custom-git-hooks
 
 Custom hook scripts to git based development
 
