@@ -51,7 +51,7 @@ if [ -d "$working_git_root/$hooks_dir/" ] && [ -d "$install_hook_folder" ] && [ 
     then
         echo "Insert $custom_git_hooks_dir/ into $gitignore_file to prevent your repository"
         echo "# $install_hook_skeleton_id on $install_date:" >> "$working_git_root/$gitignore_file"
-        echo "$custom_git_hooks_dir/*" >> "$working_git_root/$gitignore_file"
+        echo "/$custom_git_hooks_dir/*" >> "$working_git_root/$gitignore_file"
     fi
 
     while read -r hook_file; do
@@ -101,19 +101,19 @@ if [ -d "$working_git_root/$hooks_dir/" ] && [ -d "$install_hook_folder" ] && [ 
                     cp "$install_hook_folder/$hook_file.d/$work_hook" "$working_git_root/$hooks_dir/$new_subdir/$work_hook"
                     chmod +x "$working_git_root/$hooks_dir/$new_subdir/$work_hook"
 
-                    if ! grep -Fxq "!$working_git_root/$hooks_dir/$hook_file" "$working_git_root/$gitignore_file"
-                    then
-                        echo "** Insert exception for $hooks_dir/$hook_file into $gitignore_file"
-                        echo "# $install_hook_skeleton_id on $install_date:" >> "$working_git_root/$gitignore_file"
-                        echo "!$hooks_dir/$hook_file" >> "$working_git_root/$gitignore_file"
-                    fi 
+#                    if ! grep -Fxq "!$working_git_root/$hooks_dir/$hook_file" "$working_git_root/$gitignore_file"
+#                    then
+#                        echo "** Insert exception for $hooks_dir/$hook_file into $gitignore_file"
+#                        echo "# $install_hook_skeleton_id on $install_date:" >> "$working_git_root/$gitignore_file"
+#                        echo "!$hooks_dir/$hook_file" >> "$working_git_root/$gitignore_file"
+#                    fi 
 
-                    if ! grep -Fxq "!$hooks_dir/$new_subdir/$work_hook" "$working_git_root/$gitignore_file"
-                    then
-                        echo "** Insert exception for $hooks_dir/$new_subdir/$work_hook into $gitignore_file"
-                        echo "# $install_hook_skeleton_id on $install_date:" >> "$working_git_root/$gitignore_file"
-                        echo "!$hooks_dir/$new_subdir/$work_hook" >> "$working_git_root/$gitignore_file"
-                    fi
+#                    if ! grep -Fxq "!$hooks_dir/$new_subdir/$work_hook" "$working_git_root/$gitignore_file"
+#                    then
+#                        echo "** Insert exception for $hooks_dir/$new_subdir/$work_hook into $gitignore_file"
+#                        echo "# $install_hook_skeleton_id on $install_date:" >> "$working_git_root/$gitignore_file"
+#                        echo "!$hooks_dir/$new_subdir/$work_hook" >> "$working_git_root/$gitignore_file"
+#                    fi
 
                 done
 
