@@ -3,6 +3,7 @@ commit-msg
 fsmonitor-watchman
 pre-applypatch
 pre-commit
+pre-merge-commit
 pre-push
 pre-rebase
 pre-receive
