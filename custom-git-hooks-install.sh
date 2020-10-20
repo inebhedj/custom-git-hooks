@@ -50,7 +50,7 @@ if [ -d "$working_git_root/$hooks_dir/" ] && [ -d "$install_hook_folder" ] && [ 
     if ! grep -Fxq "$custom_git_hooks_dir" "$working_git_root/$gitignore_file"
     then
         echo "Insert $custom_git_hooks_dir/ into $gitignore_file to prevent your repository"
-        echo "!$custom_git_hooks_dir/" >> "$working_git_root/$gitignore_file"
+        echo "$custom_git_hooks_dir/*" >> "$working_git_root/$gitignore_file"
     fi
 
     while read -r hook_file; do
