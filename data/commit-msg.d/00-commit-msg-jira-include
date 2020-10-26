@@ -10,19 +10,23 @@ if [ -z $jira_ticket  ] || [ "$jira_ticket" = "" ]; then
 fi
 commit_check="${jira_ticket}: "
 
-commit_orig_ticket=$(echo $1 | grep -e '^[A-Z][A-Z]\+-[0-9]\+\|NOJIRA' -o)
+orig_commit_message=$(cat $1)
+commit_orig_ticket=$(echo $orig_commit_message | grep -e '^[A-Z][A-Z]\+-[0-9]\+\|NOJIRA' -o)
 
-msg_notice="NOTICE: The JIRA card name ($commit_orig_ticket) for this commit message: 
-$1 
+msg_notice="
+NOTICE: The JIRA card name ($commit_orig_ticket) for this commit message: 
+* $orig_commit_message ($1) 
 is different from the JIRA card name ($jira_ticket) in the branch name: 
-$local_branch"
+* $local_branch
+"
 
 if ! grep -iqE "^$commit_check" "$1"; then
-    if [ -z $commit_orig_ticket  ] && [ "$commit_orig_ticket" != "" ]; then
-        echo "$msg_notice"
-    else
+    if [ -z $commit_orig_ticket  ] || [ "$commit_orig_ticket" = "" ]; then
         echo "$jira_ticket"': '$(cat "$1") > "$1"
+    else
+        echo "$msg_notice"
     fi
 fi
 
 exit 0
+
