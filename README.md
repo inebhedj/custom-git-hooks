@@ -8,10 +8,17 @@ This scripts regenerates your `.git/hooks/` files to directory structure, and pl
 
 ## Usage
 
-Place `custom-git-hooks-install.sh` file and `custom-git-hooks/` directory (with all subdirectories and files) into your repository.
+Clone `custom-git-hooks` repository into your working repository (where you want to use **custom-git-hooks** services):
 
-Start installation in CLI:
 ```bash
+git clone git@github.com:velkeit/custom-git-hooks.git
+```
+(If you are not first time user, and you cloned before the **custom-git-hooks**, you may need to update your local instance: `git pull`.)
+
+Start installation (or update) in CLI:
+
+```bash
+cd custom-git-hooks/
 sh custom-git-hooks-install.sh
 ```
 
