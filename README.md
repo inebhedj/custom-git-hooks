@@ -41,3 +41,17 @@ This script inserts  (eg.) the JIRA card name (eg: "JIRA-1212: ") or "NOJIRA: " 
 Original place is `custom-git-hooks/commit-msg.d/00-pre-commit-jira-branchname`.
 
 New place after installation is `.git/hooks/commit-msg.d/00-commit-msg-jira-include`.
+
+### 00-post-merge-master-npm-version
+
+After a branch (with `-v100` or `-v010` or `-v001` on end of branch name -> name postfixum) merged into master, then this script bump npm package version, add git tag with new version and push into repository (if npm and package.json available in the repository's root).
+
+The version bump based on the postfixum of the merged branch name (eg: `JIRA-1212-my-branch-v100`):
+
+- **-v100** - version bump major (eg: v1.0.0 -> v2.0.0)
+- **-v010** - version bump minor (eg: v1.1.0 -> v1.2.0)
+- **-v001** - version bump patch (eg: v1.1.1 -> v1.1.2)
+
+Original place is `custom-git-hooks/post-merge.d/00-post-merge-master-npm-version`.
+
+New place after installation is `.git/hooks/post-merge.d/00-post-merge-master-npm-version`.
