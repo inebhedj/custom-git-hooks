@@ -55,7 +55,6 @@ if [ -d "$working_git_root/$hooks_dir/" ] && [ -d "$install_hook_folder" ] && [ 
         echo "$custom_git_hooks_dir/*" >> "$working_git_root/$gitignore_file"
         echo "/$custom_git_hooks_dir/" >> "$working_git_root/$gitignore_file"
         echo "/$custom_git_hooks_dir/*" >> "$working_git_root/$gitignore_file"
-        echo ".git.cgh.*" >> "$working_git_root/$gitignore_file"
     fi
 
     while read -r hook_file; do
