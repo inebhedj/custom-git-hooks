@@ -67,7 +67,7 @@ New place after installation is `.git/hooks/pre-commit.d/00-pre-commit-jira-bran
 
 ## 00-pre-receive-cgh-variables-to-file
 
-Remove temporary configuration file (what created by **00-pre-receive-cgh-variables-to-file script**).
+This hook script collects and writes all available global values about the current git flow to temporary configuration file. This file used by mostly other hook scripts.
 
 Original place is `custom-git-hooks/pre-receive.d/00-pre-receive-cgh-variables-to-file`.
 
