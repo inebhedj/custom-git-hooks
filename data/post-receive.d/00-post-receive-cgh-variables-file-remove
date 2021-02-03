@@ -1,0 +1,7 @@
+#!/bin/sh
+
+LC_ALL=C 
+
+cache_file=$(git rev-parse --show-toplevel)/.git/.cgh.variables
+
+unlink $cache_file

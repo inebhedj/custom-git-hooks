@@ -2,22 +2,22 @@
 
 LC_ALL=C
 
-local_branch="$(git rev-parse --abbrev-ref HEAD)"
+cache_file=$(git rev-parse --show-toplevel)/.git/.cgh.variables
+eval "$(./$cache_file)"
 
-jira_ticket=$(echo $local_branch | grep -e '^[A-Z][A-Z]\+-[0-9]\+\|NOJIRA' -o)
+jira_ticket=$(echo $CGH_BRANCH_NAME_CURRENT| grep -e '^[A-Z][A-Z]\+-[0-9]\+\|NOJIRA' -o)
 if [ -z $jira_ticket  ] || [ "$jira_ticket" = "" ]; then
     jira_ticket="NOJIRA"
 fi
 commit_check="${jira_ticket}: "
 
-orig_commit_message=$(cat $1)
-commit_orig_ticket=$(echo $orig_commit_message | grep -e '^[A-Z][A-Z]\+-[0-9]\+\|NOJIRA' -o)
+commit_orig_ticket=$(echo $CGH_COMMIT_MESSAGE | grep -e '^[A-Z][A-Z]\+-[0-9]\+\|NOJIRA' -o)
 
 msg_notice="
 NOTICE: The JIRA card name ($commit_orig_ticket) for this commit message: 
-* $orig_commit_message ($1) 
+* $CGH_COMMIT_MESSAGE ($1) 
 is different from the JIRA card name ($jira_ticket) in the branch name: 
-* $local_branch
+* $CGH_BRANCH_NAME_CURRENT
 "
 
 if ! grep -iqE "^$commit_check" "$1"; then

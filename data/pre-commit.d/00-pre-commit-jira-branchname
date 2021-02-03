@@ -2,12 +2,12 @@
 
 LC_ALL=C
 
-local_branch="$(git rev-parse --abbrev-ref HEAD)"
-logQuery=$(git log --all --not $(git rev-list --no-walk --exclude=refs/heads/$local_branch --exclude=HEAD --all))
+cache_file=$(git rev-parse --show-toplevel)/.git/.cgh.variables
+eval "$(./$cache_file)"
 
 valid_branch_regex='^(?:[A-Z][A-Z]+-[0-9]+|NOJIRA)-[a-zA-Z0-9-]+$'
 
-example_branch_name=${local_branch//_/-}
+example_branch_name=${CGH_BRANCH_NAME_CURRENT//_/-}
 example_branch_name=${example_branch_name//[^-\w]+/}
 (  echo "$example_branch_name" | grep -Eq  "$valid_branch_regex" )  && regex_check="1" || regex_check="0"
 if [ $regex_check = "0" ]
@@ -17,7 +17,7 @@ fi
 
 msg_error="[ERROR]: There is something wrong with your new branch name: 
 
-$local_branch
+$CGH_BRANCH_NAME_CURRENT
 
 Branch names in this project must adhere to this contract: 
 
@@ -41,10 +41,10 @@ contains only alphanumeric characters (0-9a-zA-Z) and hyphens (-).
 However: commit continues.
 "
 
-if [ "$local_branch" = "master" ]; then
+if [ "$CGH_BRANCH_NAME_CURRENT" = "master" ] || [ "$CGH_BRANCH_NAME_CURRENT" = "main" ]; then
     exec < /dev/tty
     while true; do
-        read -p "[WARNING] Are You sure You want to commit into master? (y/N) " yn
+        read -p "[WARNING] Are You sure You want to commit into master / main? (y/N) " yn
         if [ "$yn" = "" ]; then
             yn='N'
         fi
@@ -55,8 +55,8 @@ if [ "$local_branch" = "master" ]; then
         esac
     done
 else
-    (  echo "$local_branch" | grep -Eq  "$valid_branch_regex" )  && regex_check="1" || regex_check="0"
-    if [ -z "$logQuery" ]; then 
+    (  echo "$CGH_BRANCH_NAME_CURRENT" | grep -Eq  "$valid_branch_regex" )  && regex_check="1" || regex_check="0"
+    if [ -z "$CGH_LOG_QUERY" ]; then 
         
         if [ $regex_check = "0" ]
         then

@@ -1,0 +1,37 @@
+#!/bin/sh
+
+LC_ALL=C 
+
+cache_file=$(git rev-parse --show-toplevel)/.git/.cgh.variables
+package_json=$(git rev-parse --show-toplevel)/package.json
+reflog_message=$(git reflog -1)
+version_sample="\"(version)\": \"([^\"]*)\"";
+
+branch_name_current="$(git rev-parse --abbrev-ref HEAD)"
+branch_version_current='';
+
+branch_name_merged=$(echo $reflog_message | cut -d" " -f 4 | sed "s/://")
+
+log_query=$(git log --all --not $(git rev-list --no-walk --exclude=refs/heads/$branch_name_current --exclude=HEAD --all))
+commit_message=$(cat $1)
+
+
+while read -r l; do
+    if [[ $l =~ $version_sample ]]; then
+        value="${BASH_REMATCH[2]}";
+        branch_version_current="$value";
+    fi
+done < $package_json;
+
+printf '%s\n' '#!/bin/sh' '' \
+    '' \
+    "export CGH_BRANCH_NAME_CURRENT=$branch_name_current" \
+    "export CGH_BRANCH_NAME_MERGED=$branch_name_merged" \
+    "export CGH_BRANCH_VERSION_CURRENT=$branch_version_current" \
+    "export CGH_COMMIT_MESSAGE=$commit_message" \
+    "export CGH_LOG_QUERY=$log_query" \
+    "export CGH_PACKAGE_JSON_FILE=$package_json" \
+    "export CGH_REFLOG_MESSAGE=$reflog_message" \
+    "export CGH_VERSION_SAMPLE=$version_sample" \
+    '' >$cache_file
+    
