@@ -1,0 +1,4 @@
+commit-msg.d/00-commit-msg-jira-include
+pre-commit.d/00-pre-commit-jira-branchname
+commit-msg.d/00-commit-msg-jira-include-2
+pre-commit.d/00-pre-commit-jira-branchname-2

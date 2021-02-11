@@ -18,4 +18,5 @@ post-rewrite
 post-update 
 push-to-checkout
 sendmail-validate
+sendemail-validate
 update
