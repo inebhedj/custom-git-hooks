@@ -3,4 +3,3 @@ pre-commit.d/00-pre-commit-jira-branchname
 commit-msg.d/00-commit-msg-jira-include-2
 post-merge.d/00-post-merge-master-main-npm-version-2
 pre-commit.d/00-pre-commit-jira-branchname-2
-prepare-commit-msg.d/00-prepare-commit-msg-merge-master-main-npm-version-2

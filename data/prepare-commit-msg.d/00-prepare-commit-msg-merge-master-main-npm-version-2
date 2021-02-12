@@ -1,5 +1,0 @@
-#!/bin/sh
-
-LC_ALL=C
-
-CGH_BRANCH_NAME_CURRENT="$(git rev-parse --abbrev-ref HEAD)"
