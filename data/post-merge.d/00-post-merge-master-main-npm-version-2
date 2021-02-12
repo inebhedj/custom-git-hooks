@@ -20,11 +20,11 @@ if ! [ "$CGH_PACKAGE_JSON_FILE" = "" ] && [[ -f "$CGH_PACKAGE_JSON_FILE" ]] && w
                 echo "No version bump rule in branch name ${merged_branch_name}."
             else
                 if [ "$version_string" = "-version-major" ]; then
-                    npm version major -m "Releasing version %s"
+                    npm version major -m "NOJIRA: Releasing version %s"
                 elif [ "$version_string" = "-version-minor" ]; then
-                    npm version minor -m "Releasing version %s"
+                    npm version minor -m "NOJIRA: Releasing version %s"
                 else
-                    npm version patch -m "Releasing version %s"
+                    npm version patch -m "NOJIRA: Releasing version %s"
                 fi
                 git push --tags
                 echo "Version bump released."

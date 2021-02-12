@@ -41,19 +41,21 @@ contains only alphanumeric characters (0-9a-zA-Z) and hyphens (-).
 However: commit continues.
 "
 
-if [ "$local_branch" = "master" ]; then
-    exec < /dev/tty
-    while true; do
-        read -p "[WARNING] Are You sure You want to commit into master? (y/N) " yn
-        if [ "$yn" = "" ]; then
-            yn='N'
-        fi
-        case $yn in
-            [Yy] ) echo "Your answer is Yes: commit continues."; exit 0; break;;
-            [Nn] ) echo "Your answer is No: commit is rejected."; exit 1;;
-            * ) echo "Please answer y or n for yes or no.";;
-        esac
-    done
+if [ "$local_branch" = "master" ] || [ "$local_branch" = "main" ]; then
+    if ! grep -iqE "^([A-Z][A-Z]\+-[0-9]\+\|NOJIRA): Releasing version" "$1"; then
+        exec < /dev/tty
+        while true; do
+            read -p "[WARNING] Are You sure You want to commit into $local_branch? (y/N) " yn
+            if [ "$yn" = "" ]; then
+                yn='N'
+            fi
+            case $yn in
+                [Yy] ) echo "Your answer is Yes: commit continues."; exit 0; break;;
+                [Nn] ) echo "Your answer is No: commit is rejected."; exit 1;;
+                * ) echo "Please answer y or n for yes or no.";;
+            esac
+        done
+    fi
 else
     (  echo "$local_branch" | grep -Eq  "$valid_branch_regex" )  && regex_check="1" || regex_check="0"
     if [ -z "$logQuery" ]; then 
