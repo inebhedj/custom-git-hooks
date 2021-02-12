@@ -4,7 +4,7 @@ LC_ALL=C
 
 CGH_PACKAGE_JSON_FILE=$(git rev-parse --show-toplevel)/package.json
 
-if [[ -f "$CGH_PACKAGE_JSON_FILE" ]]; then
+if ! [ "$CGH_PACKAGE_JSON_FILE" = "" ] && [[ -f "$CGH_PACKAGE_JSON_FILE" ]] && which node > /dev/null; then
 
     CGH_BRANCH_NAME_CURRENT="$(git rev-parse --abbrev-ref HEAD)"
 
@@ -13,7 +13,7 @@ if [[ -f "$CGH_PACKAGE_JSON_FILE" ]]; then
         echo "Merged branch name: $merged_branch_name"
 
         if [ -z $merged_branch_name  ] || [ "$merged_branch_name" = "" ] || [ "$merged_branch_name" = "master" ]  || [ "$merged_branch_name" = "main" ]; then
-            echo "Master / main merged into master / main."
+            echo "Master / main merged into master / main, no version bump."
         else
             version_string=$(echo $merged_branch_name | grep -i '\-version\-\(major\|minor\|patch\|fix\)$' -o | tr '[:upper:]' '[:lower:]')
             if [ -z $version_string  ] || [ "$version_string" = "" ]; then
@@ -34,5 +34,5 @@ if [[ -f "$CGH_PACKAGE_JSON_FILE" ]]; then
         echo "No version bump, unless merged into  / main."
     fi
 else
-    echo "No package.json available, version bump skipped."
+    echo "No npm or package.json available, version bump skipped."
 fi
