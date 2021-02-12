@@ -9,6 +9,7 @@ Custom hook scripts to git based development
     - [Method 2: Helper module for nodejs based repositories](#method-2-helper-module-for-nodejs-based-repositories)
   - [Custom hooks in this repository](#custom-hooks-in-this-repository)
     - [commit-msg.d/00-commit-msg-jira-include-*](#commit-msgd00-commit-msg-jira-include-)
+    - [post-merge.d/00-post-merge-master-main-npm-version-*](#post-merged00-post-merge-master-main-npm-version-)
     - [pre-commit-d/00-pre-commit-jira-branchname-*](#pre-commit-d00-pre-commit-jira-branchname-)
 
 ## What is it?
@@ -82,6 +83,21 @@ This script inserts  (eg.) the JIRA card name (eg: "JIRA-1212: ") or "NOJIRA: " 
 Original place is `custom-git-hooks/commit-msg.d/00-commit-msg-jira-include-*`.
 
 New place after installation is `.git/hooks/commit-msg.d/00-commit-msg-jira-include-*`.
+
+### post-merge.d/00-post-merge-master-main-npm-version-*
+
+After a branch (with `-version-major` or `-version-minor` or `-version-patch` or `-version-fix` on end of branch name -> name postfixum) merged into **master** or **main**, then this script bump npm package version, add git tag with new version and push into repository (if npm and package.json available in the repository's root).
+
+The version bump based on the postfixum of the merged branch name (eg: `JIRA-1212-my-branch-version-major`):
+
+- **-version-major** - version bump major (eg: v1.1.1 -> v2.0.0)
+- **-version-minor** - version bump minor (eg: v1.0.1 -> v1.2.0)
+- **-version-patch** - version bump patch (eg: v1.0.0 -> v1.0.1)
+- **-version-fix** - version bump patch (eg: v1.0.0 -> v1.0.1)
+
+Original place is `custom-git-hooks/post-merge.d/00-post-merge-master-main-npm-version-*`.
+
+New place after installation is `.git/hooks/post-merge.d/00-post-merge-master-main-npm-version-*`.
 
 ### pre-commit-d/00-pre-commit-jira-branchname-*
 
