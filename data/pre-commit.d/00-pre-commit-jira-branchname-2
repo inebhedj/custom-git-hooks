@@ -7,6 +7,8 @@ logQuery=$(git log --all --not $(git rev-list --no-walk --exclude=refs/heads/$lo
 
 valid_branch_regex='^(?:[A-Z][A-Z]+-[0-9]+|NOJIRA)-[a-zA-Z0-9-]+$'
 
+commit_check='^([A-Z][A-Z]\+-[0-9]\+\|NOJIRA): Releasing version'
+
 example_branch_name=${local_branch//_/-}
 example_branch_name=${example_branch_name//[^-\w]+/}
 (  echo "$example_branch_name" | grep -Eq  "$valid_branch_regex" )  && regex_check="1" || regex_check="0"
@@ -39,10 +41,11 @@ Rules: branch name starts with the name of the JIRA card (eg: JIRA-1234) or the 
 contains only alphanumeric characters (0-9a-zA-Z) and hyphens (-).
 
 However: commit continues.
+
 "
 
 if [ "$local_branch" = "master" ] || [ "$local_branch" = "main" ]; then
-    if ! grep -iqE "^([A-Z][A-Z]\+-[0-9]\+\|NOJIRA): Releasing version" "$1"; then
+    if ! grep -iqE "^$commit_check" "$1"; then
         exec < /dev/tty
         while true; do
             read -p "[WARNING] Are You sure You want to commit into $local_branch? (y/N) " yn
