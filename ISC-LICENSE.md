@@ -1,7 +1,7 @@
 Internet Systems Consortium license
 ===================================
 
-Copyright (c) `2023`, `VELKEI Tamás (vt / cjvt) - https://github.com/inebhedj`
+Copyright (c) `2020`, `VELKEI Tamás (vt / cjvt) - https://github.com/inebhedj`
 
 Permission to use, copy, modify, and/or distribute this software for any purpose
 with or without fee is hereby granted, provided that the above copyright notice
