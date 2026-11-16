@@ -80,7 +80,7 @@ sh tests/run.sh               # all tests
 sh tests/run.sh commit_msg    # one file: commit_msg, pre_commit, dispatch, install
 ```
 
-The tests need only `git` and a POSIX shell; each runs in a fresh temporary repository and never touches your own git configuration. CI additionally runs `shellcheck` and checks the scripts with `dash`.
+The tests need only `git` and a POSIX shell; each runs in a fresh temporary repository and never touches your own git configuration. The CI workflow additionally runs `shellcheck` and checks the scripts with `dash`; it is **manual only** (Actions tab → CI → "Run workflow") and never starts on push or pull request.
 
 Layout: `install.sh` (installer), `payload/` (what gets copied: `_dispatch`, `lib.sh`, `cgh.conf`, `hooks.d/`), `tests/`, `data/` + `custom-git-hooks-install.sh` + `postinstall-cgh.js` (the old v2, to be removed).
 
