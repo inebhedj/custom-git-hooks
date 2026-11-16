@@ -1,0 +1,53 @@
+#!/bin/sh
+# Checks the branch name (default: <ticket>-<letters, digits and hyphens>, where
+# <ticket> is a JIRA key like ABC-123 or NOJIRA).
+#
+# * a new branch (one without commits of its own) with a bad name: commit is
+#   rejected
+# * an old branch with a bad name: only a notice
+#
+# Protected branches (master, main, ...) are handled by 10-protected-branch;
+# merges, rebases, cherry-picks and detached HEADs are not checked.
+
+CGH_HOME=${CGH_HOME:-$(cd "$(dirname "$0")/../.." && pwd -P)}
+. "$CGH_HOME/lib.sh"
+
+cgh_in_progress && exit 0
+branch=$(cgh_branch)
+[ -n "$branch" ] || exit 0
+cgh_is_protected "$branch" && exit 0
+
+regex=$(cgh_branch_regex)
+printf '%s\n' "$branch" | grep -qE "$regex" && exit 0
+
+# Does the branch already own commits that no other branch has?
+if git rev-parse -q --verify HEAD >/dev/null 2>&1 &&
+    [ -n "$(git rev-list -n 1 HEAD --not --exclude="$branch" --branches --remotes 2>/dev/null)" ]; then
+    cgh_say "[NOTICE]: this (old) branch name does not follow the rules:
+
+    $branch
+
+Rules: it has to match $regex
+However: the commit continues.
+"
+    exit 0
+fi
+
+suggestion=$(printf '%s' "$branch" | tr '_' '-' | tr -cd 'a-zA-Z0-9-')
+printf '%s\n' "$suggestion" | grep -qE "$regex" || suggestion="$(cgh_no_ticket)-$suggestion"
+
+cgh_say "[ERROR]: there is something wrong with the name of your new branch:
+
+    $branch
+
+Branch names in this project have to match:
+
+    $regex
+
+(start with the JIRA ticket, eg. ABC-123, or with $(cgh_no_ticket); then only
+letters, digits and hyphens). The commit is rejected. Rename the branch and
+try again, eg.:
+
+    git branch -m $suggestion
+"
+exit 1

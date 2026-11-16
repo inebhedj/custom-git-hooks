@@ -1,0 +1,62 @@
+#!/bin/sh
+# custom-git-hooks dispatcher.
+#
+# Every hook stub (.githooks/<hook>) calls this script with the hook name:
+#
+#     _dispatch <hook-name> [hook arguments...]
+#
+# It runs, in lexical order, every executable file in hooks.d/<hook-name>/ and
+# stops at the first one that fails (its exit status becomes the hook's).
+# Files ending in .sample, .backup or .disabled are ignored. The hook's stdin
+# is replayed to every script. Finally a pre-existing, non-cgh hook from
+# $GIT_COMMON_DIR/hooks/<hook-name> is run, if there is one.
+#
+# Environment:
+#   CGH_SKIP=1    skip all hooks (like `git --no-verify`, but for every hook)
+#   CGH_DEBUG=1   print every script that is run to stderr
+
+hook=${1:-}
+if [ -z "$hook" ]; then
+    echo "custom-git-hooks: _dispatch needs a hook name" >&2
+    exit 2
+fi
+shift
+
+[ "${CGH_SKIP:-0}" = 1 ] && exit 0
+
+CGH_HOME=$(cd "$(dirname "$0")" && pwd -P) || exit 1
+export CGH_HOME
+
+stdin_copy=$(mktemp) || exit 1
+trap 'rm -f "$stdin_copy"' EXIT
+trap 'rm -f "$stdin_copy"; exit 1' HUP INT TERM
+
+# Do not block on an interactive terminal: hooks that get no stdin from git
+# would otherwise wait for the user to type something.
+if [ -t 0 ]; then
+    : >"$stdin_copy"
+else
+    cat >"$stdin_copy"
+fi
+
+for script in "$CGH_HOME/hooks.d/$hook"/*; do
+    [ -f "$script" ] && [ -x "$script" ] || continue
+    case $script in
+        *.sample | *.backup | *.disabled) continue ;;
+    esac
+    [ "${CGH_DEBUG:-0}" = 1 ] && echo "custom-git-hooks: running $script" >&2
+    "$script" "$@" <"$stdin_copy" || exit $?
+done
+
+# A hook that lived in .git/hooks before core.hooksPath was switched on keeps
+# working. Hooks written by the old (v1/v2) cgh skeleton are not run again.
+if common_dir=$(git rev-parse --git-common-dir 2>/dev/null); then
+    legacy="$common_dir/hooks/$hook"
+    if [ -f "$legacy" ] && [ -x "$legacy" ] &&
+        ! grep -q 'CUSTOM-GIT-HOOK-SKELETON' "$legacy"; then
+        [ "${CGH_DEBUG:-0}" = 1 ] && echo "custom-git-hooks: running legacy $legacy" >&2
+        "$legacy" "$@" <"$stdin_copy" || exit $?
+    fi
+fi
+
+exit 0
