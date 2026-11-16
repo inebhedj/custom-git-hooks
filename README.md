@@ -1,108 +1,89 @@
 # custom-git-hooks
 
-Custom hook scripts to git based development
+Shared git hooks for JIRA-style workflows:
 
-- [custom-git-hooks](#custom-git-hooks)
-  - [What is it?](#what-is-it)
-  - [Usage](#usage)
-    - [Method 1: traditional "manual" installation](#method-1-traditional-manual-installation)
-    - [Method 2: Helper module for nodejs based repositories](#method-2-helper-module-for-nodejs-based-repositories)
-  - [Custom hooks in this repository](#custom-hooks-in-this-repository)
-    - [commit-msg.d/00-commit-msg-jira-include-*](#commit-msgd00-commit-msg-jira-include-)
-    - [post-merge.d/00-post-merge-master-main-npm-version-*](#post-merged00-post-merge-master-main-npm-version-)
-    - [pre-commit-d/00-pre-commit-jira-branchname-*](#pre-commit-d00-pre-commit-jira-branchname-)
+- **commit-msg:** puts the ticket of the branch name in front of the commit subject (`ABC-123: Fix it`, or `NOJIRA: …`).
+- **pre-commit:** checks the branch name (`ABC-123-some-topic` or `NOJIRA-some-topic`) and asks for confirmation before a commit to `master` / `main`.
+- **Several scripts per hook:** every hook runs the scripts of its `hooks.d/<hook>/` directory in order, so you can add your own next to ours.
 
-## What is it?
+The hooks are copied into **your repository's `.githooks/` directory** and activated with `core.hooksPath`. They are committed with your code, so the whole team runs the same version.
 
-This scripts regenerates your `.git/hooks/` files to directory structure, and places your old hook files into this directories. After all, this script places some custom hooks into the new hook structure.
+> **Upgrading from v1/v2?** See [Migrating](#migrating-from-v1v2). The old documentation is in [README-v2.md](README-v2.md).
 
-## Usage
+## Install
 
-You have two methods to use Custom-git-hooks in your project.
-### Method 1: traditional "manual" installation
-
-Clone `custom-git-hooks` repository into your working repository (where you want to use **custom-git-hooks** services):
-
-```bash
-git clone git@github.com:velkeit/custom-git-hooks.git
-```
-(If you are not a first time user, and you cloned before the **custom-git-hooks**, you may need to update your local instance: `git pull`.)
-
-Start installation (or update) in CLI:
-
-```bash
-cd custom-git-hooks/
-sh custom-git-hooks-install.sh
-```
-### Method 2: Helper module for nodejs based repositories
-
-There is a file called `postinstall-cgh.js` at the root of this project. This script clone, pull, and install the Custom-git-hooks project into your repository.
-
-**Prerequisites**: Helper module depends on `git-clone` and `git-pull` packages, so you need to install these packages into your project:
+Run the installer from the repository you want to set up (any clone of this repo will do; there is no need to keep it inside your project):
 
 ```sh
-npm install --save-dev git-clone git-pull
+git clone https://github.com/velkeit/custom-git-hooks.git ~/tools/custom-git-hooks   # once
+cd /path/to/your/project
+sh ~/tools/custom-git-hooks/install.sh
+git add .githooks && git commit
 ```
 
-**Next step**: download a copy this [`postinstall-cgh.js`](./postinstall-cgh.js) into your repository's root folder to support the postinstall process.
+Teammates only need to enable the committed hooks after cloning (`install.sh` does the same, plus updates):
 
-**Next step**: Copy lines above into your `postinstall` javascript file (in your project's root):
-
-```javascript
-require('./postinstall-cgh')(
-  process.argv
-    .map((item) => {
-      return item.match(
-        /^cgh:[clone|cloneonly|install|installonly|pull|pullonly]/gi
-      )
-        ? item.replace(/^cgh:/gi, '').toLowerCase()
-        : false;
-    })
-    .filter((item) => item !== false)
-);
+```sh
+git config core.hooksPath .githooks
 ```
 
-Available Custom-git-hooks related postinstall attributes after modification above:
+Options: `--dry-run` shows what would happen, `--uninstall` removes everything again, `--dir NAME` uses another directory than `.githooks`, `--force` takes over an existing `core.hooksPath`. Running the installer again updates the hooks; your `cgh.conf` and your own scripts are never overwritten.
 
-- **`cgh:clone`**        - **default:** clone (or pull if exists in local) repository and install / update Custom-git-hooks (eg: `node postinstall.js cgh:clone`)
-- **`cgh:cloneonly`**    - only clone (if not exists in local) repository (eg: `node postinstall.js cgh:cloneonly`)
-- **`cgh:install`**      - install / update Custom-git-hooks (or clone before, if repository not exists in local) (eg: `node postinstall.js cgh:install`)
-- **`cgh:installonly`**  - only install / update Custom-git-hooks (if repository exists in local) (eg: `node postinstall.js cgh:installonly`)
-- **`cgh:pull`**         - pull (or clone before if not exists in local) repository and install / update Custom-git-hooks (eg: `node postinstall.js cgh:pull`)
-- **`cgh:pullonly`**     - only pull (if exists in local) repository (eg: `node postinstall.js cgh:pullonly`)
+## Configuration
 
-## Custom hooks in this repository
+`.githooks/cgh.conf` (one `key = value` per line). Every value can also be set with `git config cgh.<key-with-dashes>` or with the environment variable `CGH_<KEY>`, which take precedence.
 
-This installation places some custom hooks into the new hook structure. All script file names have a hyphens and a number at the end. This is script file version number, what help to installation process to hold or to remove script files on update. The script file version number does not increase linearly, because this number based on this repository's release version number. The wildcarded names below are samples, eg: `00-commit-msg-jira-include-*` is a possible reference to `00-commit-msg-jira-include-2`.
+| key | default | meaning |
+|---|---|---|
+| `ticket_regex` | `[A-Z][A-Z0-9]+-[0-9]+` | ERE matching a ticket key |
+| `no_ticket` | `NOJIRA` | token used when there is no ticket |
+| `branch_regex` | `^(<ticket>\|<no_ticket>)-[a-zA-Z0-9-]+$` | ERE every new branch name has to match |
+| `protected_branches` | `master main` | space separated globs (`release/*`); `none` protects nothing |
 
+## What the hooks do
 
-### commit-msg.d/00-commit-msg-jira-include-*
+**`commit-msg/00-jira-prefix`**: takes the ticket from the start of the branch name and prepends it to the commit subject. The body and comments are left alone. Nothing happens if the subject already starts with a ticket (a different one only gives a notice), for `fixup!`/`squash!` commits, merges, rebases, cherry-picks and a detached HEAD.
 
-This script inserts  (eg.) the JIRA card name (eg: "JIRA-1212: ") or "NOJIRA: " string from branch name into commit message (to the beginning), if JIRA card name or NOJIRA string not presents in commit message (at the beginning).
+**`pre-commit/00-branch-name`**: a new branch (one without commits of its own) whose name does not match `branch_regex` is rejected, with a suggestion how to rename it. An old branch with a bad name only gets a notice.
 
-Original place is `custom-git-hooks/commit-msg.d/00-commit-msg-jira-include-*`.
+**`pre-commit/10-protected-branch`**: asks `Are you sure you want to commit to master? (y/N)`. Without a terminal (IDE, scripts) the commit is rejected, unless you override it explicitly:
 
-New place after installation is `.git/hooks/commit-msg.d/00-commit-msg-jira-include-*`.
+```sh
+CGH_ALLOW_PROTECTED=1 git commit ...
+```
 
-### post-merge.d/00-post-merge-master-main-npm-version-*
+### Skipping and debugging
 
-After a branch (with `-version-major` or `-version-minor` or `-version-patch` or `-version-fix` on end of branch name -> name postfixum) merged into **master** or **main**, then this script bump npm package version, add git tag with new version and push into repository (if npm and package.json available in the repository's root).
+- `git commit --no-verify` skips `pre-commit` and `commit-msg` as usual. Client-side hooks can always be bypassed, so enforce important rules in CI as well.
+- `CGH_SKIP=1 git ...` skips all custom-git-hooks scripts for one command.
+- `CGH_DEBUG=1 git ...` prints every script that is run.
 
-The version bump based on the postfixum of the merged branch name (eg: `JIRA-1212-my-branch-version-major`):
+## Adding your own hooks
 
-- **-version-major** - version bump major (eg: v1.1.1 -> v2.0.0)
-- **-version-minor** - version bump minor (eg: v1.0.1 -> v1.2.0)
-- **-version-patch** - version bump patch (eg: v1.0.0 -> v1.0.1)
-- **-version-fix** - version bump patch (eg: v1.0.0 -> v1.0.1)
+Put an executable script into `.githooks/hooks.d/<hook-name>/` (for example `.githooks/hooks.d/pre-push/50-tests`) and run `install.sh` again, which creates the missing stub for that hook. Scripts run in lexical order and the first one that fails stops the hook. Files ending in `.sample`, `.backup` or `.disabled` are ignored. A script gets the hook's arguments and its standard input.
 
-Original place is `custom-git-hooks/post-merge.d/00-post-merge-master-main-npm-version-*`.
+A hook that already existed in `.git/hooks/` when you installed keeps running after the custom scripts.
 
-New place after installation is `.git/hooks/post-merge.d/00-post-merge-master-main-npm-version-*`.
+## Migrating from v1/v2
 
-### pre-commit-d/00-pre-commit-jira-branchname-*
+v1/v2 copied the hooks into `.git/hooks/` and kept the scripts in `.git/hooks/<hook>.d/`. Installing v3 switches to `core.hooksPath`, which makes git ignore `.git/hooks` completely, so:
 
-This hook script checks (eg.) the JIRA card name (eg: JIRA-1212) or "NOJIRA" string at beginning of the branch name, and recejts commit, if not presents. This script asks for confirmation if wants to commit into **master** or **main**.
+1. Run `install.sh`. It tells you which old skeleton hooks it found.
+2. Scripts you added yourself to `.git/hooks/<hook>.d/` are **not** run any more. Move them to `.githooks/hooks.d/<hook>/` and run `install.sh` again.
+3. Delete the old `.git/hooks/*.d` directories and, if you like, the `custom-git-hooks/` lines from your `.gitignore`.
+4. Not carried over: the `post-merge` version bump (it belonged in CI, not on every developer's machine; a CI workflow is planned) and the `postinstall-cgh.js` helper (an npm package is planned).
 
-Original place is `custom-git-hooks/pre-commit.d/00-pre-commit-jira-branchname-*`.
+## Development
 
-New place after installation is `.git/hooks/pre-commit.d/00-pre-commit-jira-branchname-*`.
+```sh
+sh tests/run.sh               # all tests
+sh tests/run.sh commit_msg    # one file: commit_msg, pre_commit, dispatch, install
+```
+
+The tests need only `git` and a POSIX shell; each runs in a fresh temporary repository and never touches your own git configuration. CI additionally runs `shellcheck` and checks the scripts with `dash`.
+
+Layout: `install.sh` (installer), `payload/` (what gets copied: `_dispatch`, `lib.sh`, `cgh.conf`, `hooks.d/`), `tests/`, `data/` + `custom-git-hooks-install.sh` + `postinstall-cgh.js` (the old v2, to be removed).
+
+## License
+
+ISC, see [ISC-LICENSE.md](ISC-LICENSE.md).

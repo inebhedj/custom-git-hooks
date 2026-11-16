@@ -1,0 +1,46 @@
+#!/bin/sh
+# Puts the ticket of the branch name in front of the commit subject:
+#
+#   branch ABC-123-fix-it, message "Fix it"   ->  "ABC-123: Fix it"
+#   branch fix-it (no ticket), message "Fix"  ->  "NOJIRA: Fix"
+#
+# Only the subject (first line that is not blank or a comment) is touched; the
+# body and comments are left as they are. Nothing is changed if the subject
+# already starts with a ticket, and merges, rebases, cherry-picks, fixup!/
+# squash! commits and detached HEADs are left alone.
+
+CGH_HOME=${CGH_HOME:-$(cd "$(dirname "$0")/../.." && pwd -P)}
+. "$CGH_HOME/lib.sh"
+
+msg_file=${1:-}
+[ -n "$msg_file" ] && [ -f "$msg_file" ] || exit 0
+
+cgh_in_progress && exit 0
+branch=$(cgh_branch)
+[ -n "$branch" ] || exit 0
+
+ticket=$(cgh_leading_ticket "$branch")
+[ -n "$ticket" ] || ticket=$(cgh_no_ticket)
+
+lineno=$(grep -n -v -E '^[[:space:]]*(#|$)' "$msg_file" | head -n 1 | cut -d: -f1)
+[ -n "$lineno" ] || exit 0
+subject=$(sed -n "${lineno}p" "$msg_file")
+
+case $subject in
+    "fixup! "* | "squash! "* | "amend! "* | "Merge "*) exit 0 ;;
+esac
+
+re=$(cgh_ticket_re)
+no=$(cgh_no_ticket)
+if printf '%s\n' "$subject" | grep -qE "^($re|$no)([:[:space:]]|\$)"; then
+    found=$(cgh_leading_ticket "$subject")
+    if [ "$found" != "$ticket" ]; then
+        cgh_say "NOTICE: the commit message starts with $found, but the branch name ($branch) says $ticket."
+    fi
+    exit 0
+fi
+
+tmp=$(mktemp) || exit 1
+trap 'rm -f "$tmp"' EXIT
+awk -v n="$lineno" -v p="$ticket: " 'NR == n { print p $0; next } { print }' "$msg_file" >"$tmp" &&
+    cat "$tmp" >"$msg_file"

@@ -1,0 +1,46 @@
+#!/bin/sh
+# Asks for confirmation before committing to a protected branch (default:
+# master, main). Without a terminal (IDE, script, CI) there is nobody to ask,
+# so the commit is rejected; CGH_ALLOW_PROTECTED=1 overrides that:
+#
+#   CGH_ALLOW_PROTECTED=1 git commit ...
+#
+# Merges, rebases, cherry-picks and detached HEADs are not checked.
+
+CGH_HOME=${CGH_HOME:-$(cd "$(dirname "$0")/../.." && pwd -P)}
+. "$CGH_HOME/lib.sh"
+
+cgh_in_progress && exit 0
+branch=$(cgh_branch)
+[ -n "$branch" ] || exit 0
+cgh_is_protected "$branch" || exit 0
+[ "${CGH_ALLOW_PROTECTED:-0}" = 1 ] && exit 0
+
+if cgh_tty_ok; then
+    tty_in=$(cgh_tty_in)
+    tty_out=$(cgh_tty_out)
+    # one redirection for the whole loop: every `read` continues where the
+    # previous one stopped, also when the input is a file instead of a terminal
+    while :; do
+        printf '[WARNING] Are you sure you want to commit to %s? (y/N) ' "$branch" >"$tty_out"
+        read -r answer || answer=n
+        case $answer in
+            [Yy] | [Yy][Ee][Ss])
+                echo 'Your answer is yes: the commit continues.' >"$tty_out"
+                exit 0
+                ;;
+            '' | [Nn] | [Nn][Oo])
+                echo 'Your answer is no: the commit is rejected.' >"$tty_out"
+                exit 1
+                ;;
+            *) echo 'Please answer y or n.' >"$tty_out" ;;
+        esac
+    done <"$tty_in"
+fi
+
+cgh_say "[ERROR]: $branch is a protected branch and there is no terminal to ask for confirmation.
+The commit is rejected. If you really mean it, run:
+
+    CGH_ALLOW_PROTECTED=1 git commit ...
+"
+exit 1
