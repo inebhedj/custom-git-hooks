@@ -1,8 +1,19 @@
 {
   "name": "custom-git-hooks",
-  "version": "3.0.0-dev",
+  "version": "3.0.0",
   "description": "Shared git hooks for JIRA-style workflows: ticket prefix in commit messages, branch name check, protected branches",
+  "author": {
+    "name": "VELKEI Tamás (vt / cjvt) @inebhedj",
+    "email": "inebhedj@inebhedj.hu",
+    "url": "https://github.com/inebhedj/"
+  },
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/inebhedj/custom-git-hooks.git"
+  },
+  "homepage": "https://github.com/inebhedj/custom-git-hooks#readme",
+  "bugs": "https://github.com/inebhedj/custom-git-hooks/issues",
   "private": true,
   "bin": {
     "cgh": "bin/cgh"
@@ -11,7 +22,7 @@
     "bin",
     "payload",
     "install.sh",
-    "VERSION",
+    "VERSION.md",
     "ISC-LICENSE.md"
   ],
   "scripts": {

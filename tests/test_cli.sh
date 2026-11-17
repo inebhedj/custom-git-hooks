@@ -13,7 +13,7 @@ test_version_works_through_a_symlink() {
     link_cgh
     run "$CGH" version
     assert_rc 0
-    assert_eq "$(cat "$ROOT/VERSION")" "$OUT"
+    assert_eq "$(cat "$ROOT/VERSION.md")" "$OUT"
 }
 
 test_install_and_uninstall() {

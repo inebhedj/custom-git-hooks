@@ -9,8 +9,6 @@ Shared git hooks for JIRA-style workflows:
 
 The hooks are copied into **your repository's `.githooks/` directory** and activated with `core.hooksPath`. They are committed with your code, so the whole team runs the same version.
 
-> **Upgrading from v1/v2?** See [Migrating](#migrating-from-v1v2). The old documentation is in [README-v2.md](README-v2.md).
-
 ## Install
 
 Run the installer from the repository you want to set up (any clone of this repo will do; there is no need to keep it inside your project):
@@ -30,10 +28,10 @@ git config core.hooksPath .githooks
 
 ### Node projects (npm)
 
-Instead of cloning, add the package from a **tag** (so every developer gets the same version) and let `npm install` set up the hooks:
+Instead of cloning, add the package and let `npm install` set up the hooks:
 
 ```sh
-npm install --save-dev github:inebhedj/custom-git-hooks#v3.0.0
+npm install --save-dev github:inebhedj/custom-git-hooks
 ```
 
 ```json
@@ -44,7 +42,7 @@ npm install --save-dev github:inebhedj/custom-git-hooks#v3.0.0
 }
 ```
 
-`cgh prepare` installs quietly, does nothing on CI servers (`CI` is set), outside of git repositories or with `CGH_SKIP_INSTALL=1`, and never makes `npm install` fail. Other commands: `cgh install`, `cgh uninstall`, `cgh check`, `cgh version` (`npx cgh help`). Replace `v3.0.0` with a release tag; there is no tag yet, see [Releases](#releases).
+`cgh prepare` installs quietly, does nothing on CI servers (`CI` is set), outside of git repositories or with `CGH_SKIP_INSTALL=1`, and never makes `npm install` fail. Other commands: `cgh install`, `cgh uninstall`, `cgh check`, `cgh version` (`npx cgh help`).
 
 ### Options
 
@@ -54,14 +52,14 @@ npm install --save-dev github:inebhedj/custom-git-hooks#v3.0.0
 
 `.githooks/cgh.conf` (one `key = value` per line). Every value can also be set with `git config cgh.<key-with-dashes>` or with the environment variable `CGH_<KEY>`, which take precedence.
 
-| key | default | meaning |
-|---|---|---|
-| `ticket_regex` | `[A-Z][A-Z0-9]+-[0-9]+` | ERE matching a ticket key |
-| `no_ticket` | `NOJIRA` | token used when there is no ticket |
-| `branch_regex` | `^(<ticket>\|<no_ticket>)-[a-zA-Z0-9-]+$` | ERE every new branch name has to match |
-| `protected_branches` | `master main` | space separated globs (`release/*`); `none` protects nothing |
-| `version_branches` | `master main` | space separated globs: a merge into these branches can bump the version |
-| `version_push` | `yes` | `no`: do not push the version commit and tag |
+| key                  | default                                   | meaning                                                                 |
+| -------------------- | ----------------------------------------- | ----------------------------------------------------------------------- |
+| `ticket_regex`       | `[A-Z][A-Z0-9]+-[0-9]+`                   | ERE matching a ticket key                                               |
+| `no_ticket`          | `NOJIRA`                                  | token used when there is no ticket                                      |
+| `branch_regex`       | `^(<ticket>\|<no_ticket>)-[a-zA-Z0-9-]+$` | ERE every new branch name has to match                                  |
+| `protected_branches` | `master main`                             | space separated globs (`release/*`); `none` protects nothing            |
+| `version_branches`   | `master main`                             | space separated globs: a merge into these branches can bump the version |
+| `version_push`       | `yes`                                     | `no`: do not push the version commit and tag                            |
 
 ## What the hooks do
 
@@ -84,7 +82,7 @@ git switch master
 git merge -
 ```
 
-It needs a `package.json` and `npm`. It does **not** run after `git pull` (also not when you pull a merge that was made on GitHub; for that see [`templates/release-on-merge.yml`](templates/release-on-merge.yml)) and not for `git merge --squash`.
+It needs a `package.json` and `npm`. It does **not** run after `git pull` (also not when you pull a merge that was made on GitHub; for that see [`templates/release-on-merge.yml`](templates/release-on-merge.yml), which does the same on the server; use the hook or the template, not both) and not for `git merge --squash`.
 
 ### Skipping and debugging
 
@@ -108,38 +106,9 @@ sh .githooks/cgh-check --base origin/main --branch "$BRANCH"
 
 Exit status 0 means fine, 1 means something is wrong. A ready-to-copy GitHub workflow is in [`templates/check-pull-request.yml`](templates/check-pull-request.yml). The files in `templates/` are **not active**; nothing in this repository starts automatically.
 
-## Releases
+## Contributing
 
-The version of this repository is set by hand: write the new number into `VERSION` and into the `version` field of `package.json`, commit, and put a tag `vX.Y.Z` on the commit:
-
-```sh
-git commit -am "NOJIRA: Releasing version 3.0.0"
-git tag v3.0.0
-git push
-git push origin v3.0.0
-```
-
-For your own projects the version bump is done by the `post-merge` hook (see above) when you merge locally. If you merge pull requests on GitHub instead, [`templates/release-on-merge.yml`](templates/release-on-merge.yml) does the same on the server: a merged branch ending in `-version-minor` (and so on) bumps the version with `npm version`, tags and pushes. Use one of the two, not both.
-
-## Migrating from v1/v2
-
-v1/v2 copied the hooks into `.git/hooks/` and kept the scripts in `.git/hooks/<hook>.d/`. Installing v3 switches to `core.hooksPath`, which makes git ignore `.git/hooks` completely, so:
-
-1. Run `install.sh`. It tells you which old skeleton hooks it found.
-2. Scripts you added yourself to `.git/hooks/<hook>.d/` are **not** run any more. Move them to `.githooks/hooks.d/<hook>/` and run `install.sh` again.
-3. Delete the old `.git/hooks/*.d` directories and, if you like, the `custom-git-hooks/` lines from your `.gitignore`.
-4. The `post-merge` version bump is still there with the same rule (`-version-major|minor|patch|fix` at the end of the merged branch name), with its bugs fixed: it finds the merged branch among the branches at the merged commit (v2 took the list of all local branches), it does not run after `git pull`, it is plain POSIX sh, and it pushes the version commit together with the tag (v2 pushed the tag only). The `postinstall-cgh.js` helper is replaced by `cgh prepare`, see [Node projects](#node-projects-npm).
-
-## Development
-
-```sh
-sh tests/run.sh               # all tests
-sh tests/run.sh commit_msg    # one file: commit_msg, pre_commit, dispatch, install
-```
-
-The tests need only `git` and a POSIX shell; each runs in a fresh temporary repository and never touches your own git configuration. The CI workflow additionally runs `shellcheck` and checks the scripts with `dash`; it is **manual only** (Actions tab → CI → "Run workflow") and never starts on push or pull request.
-
-Layout: `install.sh` (installer), `bin/cgh` (command line / npm), `payload/` (what gets copied into your project: `_dispatch`, `lib.sh`, `cgh-check`, `cgh.conf`, `hooks.d/`), `templates/` (workflows to copy, not active), `tests/`, `.github/workflows/` (manual only).
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
