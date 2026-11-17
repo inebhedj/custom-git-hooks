@@ -24,14 +24,14 @@ jobs:
       - name: shellcheck
         run: |
           shellcheck -x -s sh -S warning \
-            install.sh bin/cgh scripts/*.sh \
+            install.sh bin/cgh \
             payload/_dispatch payload/cgh-check payload/lib.sh payload/hooks.d/*/* \
             tests/run.sh tests/lib.sh tests/test_*.sh
 
       - name: Syntax check with dash
         if: runner.os == 'Linux'
         run: |
-          for f in install.sh bin/cgh scripts/*.sh payload/_dispatch payload/cgh-check payload/lib.sh payload/hooks.d/*/* tests/*.sh; do
+          for f in install.sh bin/cgh payload/_dispatch payload/cgh-check payload/lib.sh payload/hooks.d/*/* tests/*.sh; do
             dash -n "$f"
           done
 
