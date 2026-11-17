@@ -10,7 +10,7 @@ Rewrite. The hooks now live in a versioned `.githooks/` directory of your projec
 - Configuration (`cgh.conf`, `git config cgh.*`, `CGH_*`): ticket format, no-ticket token, branch name regex, protected branches.
 - `cgh-check` / `cgh check`: the same branch name and commit subject rules for CI.
 - `bin/cgh` and `package.json`: `cgh prepare` for npm `prepare` scripts (replaces `postinstall-cgh.js`).
-- `scripts/bump-version.sh`, a manual Release workflow, and workflow templates (`templates/`) for the version bump on merge and for the pull request check.
+- Workflow templates (`templates/`) for the version bump on merge and for the pull request check.
 - Tests (`sh tests/run.sh`) and a manually started CI workflow (shellcheck, dash, Ubuntu and macOS).
 
 - `post-merge/00-version-bump`: the v2 version bump after merging a `-version-major|minor|patch|fix` branch into master / main, rewritten: it looks at the branches at the merged commit instead of all local branches, runs only after `git merge` (not `git pull`), is POSIX sh, and pushes the version commit and the tag together (`git push --atomic`). New settings `version_branches` and `version_push`.

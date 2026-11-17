@@ -110,7 +110,14 @@ Exit status 0 means fine, 1 means something is wrong. A ready-to-copy GitHub wor
 
 ## Releases
 
-Releases are made by hand: Actions → **Release** → "Run workflow" (on the default branch) with `release` (drops the `-dev` suffix), `major`, `minor`, `patch` or an explicit `X.Y.Z`. It runs the tests, bumps `VERSION` and `package.json` (`scripts/bump-version.sh`), commits `NOJIRA: Releasing version X`, tags `vX` and pushes. Without GitHub: `sh scripts/bump-version.sh release`, then commit and tag yourself.
+The version of this repository is set by hand: write the new number into `VERSION` and into the `version` field of `package.json`, commit, and put a tag `vX.Y.Z` on the commit:
+
+```sh
+git commit -am "NOJIRA: Releasing version 3.0.0"
+git tag v3.0.0
+git push
+git push origin v3.0.0
+```
 
 For your own projects the version bump is done by the `post-merge` hook (see above) when you merge locally. If you merge pull requests on GitHub instead, [`templates/release-on-merge.yml`](templates/release-on-merge.yml) does the same on the server: a merged branch ending in `-version-minor` (and so on) bumps the version with `npm version`, tags and pushes. Use one of the two, not both.
 
@@ -132,7 +139,7 @@ sh tests/run.sh commit_msg    # one file: commit_msg, pre_commit, dispatch, inst
 
 The tests need only `git` and a POSIX shell; each runs in a fresh temporary repository and never touches your own git configuration. The CI workflow additionally runs `shellcheck` and checks the scripts with `dash`; it is **manual only** (Actions tab → CI → "Run workflow") and never starts on push or pull request.
 
-Layout: `install.sh` (installer), `bin/cgh` (command line / npm), `payload/` (what gets copied into your project: `_dispatch`, `lib.sh`, `cgh-check`, `cgh.conf`, `hooks.d/`), `scripts/bump-version.sh`, `templates/` (workflows to copy, not active), `tests/`, `.github/workflows/` (manual only).
+Layout: `install.sh` (installer), `bin/cgh` (command line / npm), `payload/` (what gets copied into your project: `_dispatch`, `lib.sh`, `cgh-check`, `cgh.conf`, `hooks.d/`), `templates/` (workflows to copy, not active), `tests/`, `.github/workflows/` (manual only).
 
 ## License
 
