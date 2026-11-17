@@ -1,0 +1,66 @@
+#!/bin/sh
+# cgh - command line entry point of custom-git-hooks (also usable from npm).
+#
+#   cgh install [options] [repository]   install / update the hooks (see install.sh --help)
+#   cgh uninstall [repository]           remove them again
+#   cgh prepare                          for npm "prepare" scripts: install quietly, never fail
+#   cgh check [--base REF] [--branch N]  check branch name and commit subjects (for CI)
+#   cgh version                          print the version
+
+set -eu
+
+# resolve symlinks (node_modules/.bin/cgh points to the real file)
+self=$0
+while [ -L "$self" ]; do
+    dir=$(cd "$(dirname "$self")" && pwd -P)
+    link=$(readlink "$self")
+    case $link in
+        /*) self=$link ;;
+        *) self="$dir/$link" ;;
+    esac
+done
+SRC=$(cd "$(dirname "$self")/.." && pwd -P)
+
+usage() {
+    sed -n '2,8p' "$self" | sed 's/^# \{0,1\}//'
+}
+
+cmd=${1:-help}
+[ $# -eq 0 ] || shift
+
+case $cmd in
+    install)
+        exec sh "$SRC/install.sh" "$@"
+        ;;
+    uninstall)
+        exec sh "$SRC/install.sh" --uninstall "$@"
+        ;;
+    prepare)
+        # Never makes `npm install` fail and does nothing on CI servers, outside
+        # of git repositories or with CGH_SKIP_INSTALL=1.
+        [ "${CGH_SKIP_INSTALL:-0}" = 1 ] && exit 0
+        case ${CI:-} in '' | false | 0) ;; *) exit 0 ;; esac
+        git rev-parse --is-inside-work-tree >/dev/null 2>&1 || exit 0
+        if out=$(sh "$SRC/install.sh" "$@" 2>&1); then
+            echo "custom-git-hooks: hooks installed"
+        else
+            echo "custom-git-hooks: installation skipped:" >&2
+            printf '%s\n' "$out" | tail -n 3 >&2
+        fi
+        exit 0
+        ;;
+    check)
+        exec sh "$SRC/payload/cgh-check" "$@"
+        ;;
+    version | -v | --version)
+        cat "$SRC/VERSION"
+        ;;
+    help | -h | --help)
+        usage
+        ;;
+    *)
+        echo "cgh: unknown command '$cmd'" >&2
+        usage >&2
+        exit 2
+        ;;
+esac

@@ -15,7 +15,7 @@ The hooks are copied into **your repository's `.githooks/` directory** and activ
 Run the installer from the repository you want to set up (any clone of this repo will do; there is no need to keep it inside your project):
 
 ```sh
-git clone https://github.com/velkeit/custom-git-hooks.git ~/tools/custom-git-hooks   # once
+git clone git@github.com:inebhedj/custom-git-hooks.git ~/tools/custom-git-hooks   # once
 cd /path/to/your/project
 sh ~/tools/custom-git-hooks/install.sh
 git add .githooks && git commit
@@ -27,7 +27,27 @@ Teammates only need to enable the committed hooks after cloning (`install.sh` do
 git config core.hooksPath .githooks
 ```
 
-Options: `--dry-run` shows what would happen, `--uninstall` removes everything again, `--dir NAME` uses another directory than `.githooks`, `--force` takes over an existing `core.hooksPath`. Running the installer again updates the hooks; your `cgh.conf` and your own scripts are never overwritten.
+### Node projects (npm)
+
+Instead of cloning, add the package from a **tag** (so every developer gets the same version) and let `npm install` set up the hooks:
+
+```sh
+npm install --save-dev github:inebhedj/custom-git-hooks#v3.0.0
+```
+
+```json
+{
+  "scripts": {
+    "prepare": "cgh prepare"
+  }
+}
+```
+
+`cgh prepare` installs quietly, does nothing on CI servers (`CI` is set), outside of git repositories or with `CGH_SKIP_INSTALL=1`, and never makes `npm install` fail. Other commands: `cgh install`, `cgh uninstall`, `cgh check`, `cgh version` (`npx cgh help`). Replace `v3.0.0` with a release tag; there is no tag yet, see [Releases](#releases).
+
+### Options
+
+`--dry-run` shows what would happen, `--uninstall` removes everything again, `--dir NAME` uses another directory than `.githooks`, `--force` takes over an existing `core.hooksPath`. Running the installer again updates the hooks; your `cgh.conf` and your own scripts are never overwritten.
 
 ## Configuration
 
@@ -64,6 +84,22 @@ Put an executable script into `.githooks/hooks.d/<hook-name>/` (for example `.gi
 
 A hook that already existed in `.git/hooks/` when you installed keeps running after the custom scripts.
 
+## Checking on the server
+
+Client-side hooks can be skipped, so `install.sh` also puts `.githooks/cgh-check` into your repository (`cgh check` from npm). It checks the branch name and the subject of every commit in `BASE..HEAD` with the same configuration as the hooks:
+
+```sh
+sh .githooks/cgh-check --base origin/main --branch "$BRANCH"
+```
+
+Exit status 0 means fine, 1 means something is wrong. A ready-to-copy GitHub workflow is in [`templates/check-pull-request.yml`](templates/check-pull-request.yml). The files in `templates/` are **not active**; nothing in this repository starts automatically.
+
+## Releases
+
+Releases are made by hand: Actions → **Release** → "Run workflow" (on the default branch) with `release` (drops the `-dev` suffix), `major`, `minor`, `patch` or an explicit `X.Y.Z`. It runs the tests, bumps `VERSION` and `package.json` (`scripts/bump-version.sh`), commits `NOJIRA: Releasing version X`, tags `vX` and pushes. Without GitHub: `sh scripts/bump-version.sh release`, then commit and tag yourself.
+
+For your own projects, [`templates/release-on-merge.yml`](templates/release-on-merge.yml) does what the old `post-merge` hook did: a merged branch ending in `-version-minor` (and so on) bumps the version with `npm version`, tags and pushes.
+
 ## Migrating from v1/v2
 
 v1/v2 copied the hooks into `.git/hooks/` and kept the scripts in `.git/hooks/<hook>.d/`. Installing v3 switches to `core.hooksPath`, which makes git ignore `.git/hooks` completely, so:
@@ -71,7 +107,7 @@ v1/v2 copied the hooks into `.git/hooks/` and kept the scripts in `.git/hooks/<h
 1. Run `install.sh`. It tells you which old skeleton hooks it found.
 2. Scripts you added yourself to `.git/hooks/<hook>.d/` are **not** run any more. Move them to `.githooks/hooks.d/<hook>/` and run `install.sh` again.
 3. Delete the old `.git/hooks/*.d` directories and, if you like, the `custom-git-hooks/` lines from your `.gitignore`.
-4. Not carried over: the `post-merge` version bump (it belonged in CI, not on every developer's machine; a CI workflow is planned) and the `postinstall-cgh.js` helper (an npm package is planned).
+4. Replaced: the `post-merge` version bump does not run on developers' machines any more (it also looked at the wrong branch); the same rule (`-version-major|minor|patch|fix` at the end of the merged branch name) is now a CI workflow, see [`templates/release-on-merge.yml`](templates/release-on-merge.yml). The `postinstall-cgh.js` helper is replaced by `cgh prepare`, see [Node projects](#node-projects-npm).
 
 ## Development
 
@@ -82,7 +118,7 @@ sh tests/run.sh commit_msg    # one file: commit_msg, pre_commit, dispatch, inst
 
 The tests need only `git` and a POSIX shell; each runs in a fresh temporary repository and never touches your own git configuration. The CI workflow additionally runs `shellcheck` and checks the scripts with `dash`; it is **manual only** (Actions tab → CI → "Run workflow") and never starts on push or pull request.
 
-Layout: `install.sh` (installer), `payload/` (what gets copied: `_dispatch`, `lib.sh`, `cgh.conf`, `hooks.d/`), `tests/`, `data/` + `custom-git-hooks-install.sh` + `postinstall-cgh.js` (the old v2, to be removed).
+Layout: `install.sh` (installer), `bin/cgh` (command line / npm), `payload/` (what gets copied into your project: `_dispatch`, `lib.sh`, `cgh-check`, `cgh.conf`, `hooks.d/`), `scripts/bump-version.sh`, `templates/` (workflows to copy, not active), `tests/`, `.github/workflows/` (manual only).
 
 ## License
 

@@ -1,0 +1,57 @@
+# TEMPLATE for projects that use custom-git-hooks - this file is NOT active in
+# this repository. Copy it to your project's .github/workflows/ to get the
+# version bump of the old post-merge hook, but done once, on the server:
+#
+# When a pull request is merged into master / main and its branch name ends
+# with -version-major, -version-minor, -version-patch or -version-fix (eg.
+# ABC-123-new-login-version-minor), `npm version` bumps package.json, commits,
+# tags and pushes.
+#
+# Needs a package.json. If master is protected, the push by GITHUB_TOKEN has to
+# be allowed (or use a token of a user / app that may push).
+#
+# The trigger below starts it automatically on every merged PR. Replace it with
+# `on: workflow_dispatch:` if you want to run it by hand only.
+
+name: Release on merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [master, main]
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Read the bump rule from the branch name
+        id: rule
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          bump=$(printf '%s\n' "$HEAD_REF" | tr '[:upper:]' '[:lower:]' |
+            sed -nE 's/.*-version-(major|minor|patch|fix)$/\1/p')
+          [ "$bump" = fix ] && bump=patch
+          echo "bump=$bump" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        if: steps.rule.outputs.bump != ''
+        with:
+          node-version: lts/*
+
+      - name: Bump, tag and push
+        if: steps.rule.outputs.bump != ''
+        env:
+          BUMP: ${{ steps.rule.outputs.bump }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          npm version "$BUMP" -m "NOJIRA: Releasing version %s"
+          git push --follow-tags

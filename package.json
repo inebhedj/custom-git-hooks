@@ -1,0 +1,20 @@
+{
+  "name": "custom-git-hooks",
+  "version": "3.0.0-dev",
+  "description": "Shared git hooks for JIRA-style workflows: ticket prefix in commit messages, branch name check, protected branches",
+  "license": "ISC",
+  "private": true,
+  "bin": {
+    "cgh": "bin/cgh"
+  },
+  "files": [
+    "bin",
+    "payload",
+    "install.sh",
+    "VERSION",
+    "ISC-LICENSE.md"
+  ],
+  "scripts": {
+    "test": "sh tests/run.sh"
+  }
+}
