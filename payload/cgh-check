@@ -1,0 +1,108 @@
+#!/bin/sh
+# Checks on a CI server what the client hooks enforce on a developer machine
+# (hooks can be skipped with --no-verify, a CI check cannot):
+#
+# * the branch name matches branch_regex (protected branches are skipped)
+# * the subject of every commit in BASE..HEAD starts with a ticket
+#   (merge commits and fixup!/squash!/amend! commits are skipped)
+#
+#   cgh-check [--base REF] [--branch NAME]
+#
+#   --base REF      check the commits in REF..HEAD (default: $CGH_BASE, or
+#                   origin/$GITHUB_BASE_REF; without any, only the last commit)
+#   --branch NAME   branch to check (default: $GITHUB_HEAD_REF, or the current branch)
+#
+# Exit status: 0 everything fine, 1 something is wrong, 2 usage error.
+
+CGH_HOME=${CGH_HOME:-$(cd "$(dirname "$0")" && pwd -P)}
+. "$CGH_HOME/lib.sh"
+
+usage() {
+    sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//' >&2
+}
+
+base=${CGH_BASE:-}
+branch=
+
+while [ $# -gt 0 ]; do
+    case $1 in
+        --base | --branch)
+            if [ $# -lt 2 ]; then
+                usage
+                exit 2
+            fi
+            if [ "$1" = --base ]; then base=$2; else branch=$2; fi
+            shift
+            ;;
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage
+            exit 2
+            ;;
+    esac
+    shift
+done
+
+status=0
+
+# ---- branch name ------------------------------------------------------------
+
+[ -n "$branch" ] || branch=${GITHUB_HEAD_REF:-}
+[ -n "$branch" ] || branch=$(cgh_branch)
+
+if [ -z "$branch" ]; then
+    echo "Branch name: skipped (detached HEAD)"
+elif cgh_is_protected "$branch"; then
+    echo "Branch name: $branch is a protected branch, skipped"
+else
+    regex=$(cgh_branch_regex)
+    if printf '%s\n' "$branch" | grep -qE "$regex"; then
+        echo "Branch name: $branch ok"
+    else
+        cgh_say "ERROR: the branch name '$branch' does not match $regex"
+        status=1
+    fi
+fi
+
+# ---- commit subjects --------------------------------------------------------
+
+[ -n "$base" ] || { [ -z "${GITHUB_BASE_REF:-}" ] || base=origin/$GITHUB_BASE_REF; }
+
+if [ -n "$base" ]; then
+    commits=$(git rev-list --no-merges "$base..HEAD") || {
+        cgh_say "ERROR: cannot list the commits of $base..HEAD (is the history fetched?)"
+        exit 1
+    }
+else
+    commits=$(git rev-parse HEAD)
+fi
+
+re=$(cgh_ticket_re)
+no=$(cgh_no_ticket)
+checked=0
+bad=0
+
+while IFS= read -r sha; do
+    [ -n "$sha" ] || continue
+    subject=$(git log -1 --format=%s "$sha")
+    case $subject in
+        "fixup! "* | "squash! "* | "amend! "*) continue ;;
+    esac
+    checked=$((checked + 1))
+    if ! printf '%s\n' "$subject" | grep -qE "^($re|$no)([:[:space:]]|\$)"; then
+        cgh_say "ERROR: $(git rev-parse --short "$sha") does not start with a ticket (like ABC-123: or $no:): $subject"
+        bad=$((bad + 1))
+    fi
+done <<EOF
+$commits
+EOF
+
+if [ "$bad" -gt 0 ]; then
+    status=1
+fi
+echo "Commit subjects: $checked checked, $bad wrong"
+
+exit "$status"

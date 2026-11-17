@@ -182,7 +182,7 @@ do_install() {
         act mkdir -p "$(dirname "$dest/$f")"
         act cp "$PAYLOAD/$f" "$dest/$f"
         case $f in
-            _dispatch | hooks.d/*) act chmod +x "$dest/$f" ;;
+            _dispatch | cgh-check | hooks.d/*) act chmod +x "$dest/$f" ;;
         esac
     done
 

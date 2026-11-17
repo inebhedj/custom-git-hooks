@@ -1,0 +1,30 @@
+# TEMPLATE for projects that use custom-git-hooks - this file is NOT active in
+# this repository. Copy it to your project's .github/workflows/.
+#
+# Client-side hooks can be skipped (`git commit --no-verify`), so this repeats
+# the checks on the server: the branch name of the pull request and the
+# subject of every commit in it. It runs `.githooks/cgh-check`, which the
+# installer copies together with the hooks and which reads your cgh.conf.
+#
+# The trigger below starts it automatically on every pull request. Replace it
+# with `on: workflow_dispatch:` if you want to run it by hand only (then pass
+# the branch and the base yourself: `cgh-check --branch NAME --base origin/main`).
+
+name: Check branch name and commit messages
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: cgh-check
+        env:
+          BASE: origin/${{ github.base_ref }}
+          BRANCH: ${{ github.head_ref }}
+        run: sh .githooks/cgh-check --base "$BASE" --branch "$BRANCH"
