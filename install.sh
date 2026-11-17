@@ -12,7 +12,7 @@ set -eu
 
 SRC=$(cd "$(dirname "$0")" && pwd -P)
 PAYLOAD="$SRC/payload"
-VERSION=$(cat "$SRC/VERSION" 2>/dev/null || echo unknown)
+VERSION=$(cat "$SRC/VERSION.md" 2>/dev/null || echo unknown)
 
 STUB_MARK='custom-git-hooks stub'
 

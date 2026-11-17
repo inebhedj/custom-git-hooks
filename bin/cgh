@@ -53,7 +53,7 @@ case $cmd in
         exec sh "$SRC/payload/cgh-check" "$@"
         ;;
     version | -v | --version)
-        cat "$SRC/VERSION"
+        cat "$SRC/VERSION.md"
         ;;
     help | -h | --help)
         usage
