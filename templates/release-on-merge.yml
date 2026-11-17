@@ -1,6 +1,8 @@
 # TEMPLATE for projects that use custom-git-hooks - this file is NOT active in
-# this repository. Copy it to your project's .github/workflows/ to get the
-# version bump of the old post-merge hook, but done once, on the server:
+# this repository. Copy it to your project's .github/workflows/ if you merge
+# pull requests on GitHub: the post-merge hook of custom-git-hooks only sees
+# merges made on your own machine. Use this template or the hook, not both.
+# The rule is the same, but it is done once, on the server:
 #
 # When a pull request is merged into master / main and its branch name ends
 # with -version-major, -version-minor, -version-patch or -version-fix (eg.

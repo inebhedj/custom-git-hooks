@@ -1,0 +1,124 @@
+#!/bin/sh
+# Version bump after a merge (the v2 post-merge hook, with its bugs fixed).
+#
+# After `git merge` into master / main, if the merged branch name ends with
+#
+#   -version-major | -version-minor | -version-patch | -version-fix
+#
+# (eg. ABC-123-new-login-version-minor) this runs `npm version`, which bumps
+# package.json, commits and tags, and then pushes the commit and the tag
+# together (all or nothing).
+#
+# Differences from v2:
+# * the merged branch is looked up among the branches that point at the merged
+#   commit, not among all local branches
+# * only a real `git merge` triggers it, not `git pull`
+# * plain POSIX sh
+# * the version commit is pushed as well, not only the tag
+#
+# Needs a package.json in the top directory and npm. Settings (see cgh.conf):
+#   version_branches   branches where it runs         (default: master main)
+#   version_push       yes / no: push commit and tag  (default: yes)
+
+CGH_HOME=${CGH_HOME:-$(cd "$(dirname "$0")/../.." && pwd -P)}
+. "$CGH_HOME/lib.sh"
+
+# $1 is 1 for `git merge --squash`: nothing was merged, there is no merge
+[ "${1:-0}" = 1 ] && exit 0
+
+toplevel=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+[ -f "$toplevel/package.json" ] || exit 0
+command -v npm >/dev/null 2>&1 || exit 0
+
+# only on the configured branches
+branch=$(cgh_branch)
+[ -n "$branch" ] || exit 0
+on_branch=1
+set -f
+for p in $(cgh_conf version_branches 'master main'); do
+    # shellcheck disable=SC2254 # the pattern is meant to be a glob
+    case $branch in
+        $p)
+            on_branch=0
+            break
+            ;;
+    esac
+done
+set +f
+[ "$on_branch" = 0 ] || exit 0
+
+# `git pull` runs this hook as well; only a real `git merge` counts. The last
+# entry of the HEAD reflog says which one it was ("merge topic: ...").
+case $(git log -g -1 --format=%gs HEAD 2>/dev/null) in
+    merge\ *) ;;
+    *) exit 0 ;;
+esac
+
+# The merged commits: the other parents of a merge commit, or the new HEAD
+# itself after a fast-forward.
+tips=$(git rev-list --parents -n 1 HEAD | cut -d ' ' -f 3-)
+[ -n "$tips" ] || tips=$(git rev-parse HEAD)
+
+# the highest bump rule among the branches that point at them
+rank=0
+level=
+for tip in $tips; do
+    for ref in $(git for-each-ref --points-at="$tip" --format='%(refname:short)' refs/heads refs/remotes); do
+        rule=$(printf '%s\n' "$ref" | tr '[:upper:]' '[:lower:]' |
+            grep -Eo -e '-version-(major|minor|patch|fix)$') || continue
+        rule=${rule#-version-}
+        case $rule in
+            major) r=3 ;;
+            minor) r=2 ;;
+            *) r=1 ;;
+        esac
+        if [ "$r" -gt "$rank" ]; then
+            rank=$r
+            level=$rule
+            from=$ref
+        fi
+    done
+done
+[ -n "$level" ] || exit 0
+[ "$level" = fix ] && level='patch'
+
+cgh_say "[NOTICE] $from: version bump ($level)"
+
+cd "$toplevel" || exit 1
+# --no-commit-hooks: the version commit is made by this hook, so the
+# pre-commit / commit-msg hooks (eg. the protected branch question) must not
+# get in its way
+if ! npm version "$level" --no-commit-hooks -m 'NOJIRA: Releasing version %s' >&2; then
+    cgh_say "[ERROR] npm version $level failed; nothing was changed or pushed by this hook."
+    exit 1
+fi
+
+tag=$(git describe --tags --exact-match HEAD 2>/dev/null)
+if [ -z "$tag" ]; then
+    cgh_say "[ERROR] npm version made no tag on HEAD, so nothing is pushed."
+    exit 1
+fi
+
+case $(cgh_conf version_push 'yes') in
+    [Nn] | [Nn][Oo] | 0 | false)
+        cgh_say "[NOTICE] Not pushing (version_push = no). To push: git push --atomic origin $branch $tag"
+        exit 0
+        ;;
+esac
+
+if ! git remote | grep -qx origin; then
+    cgh_say "[NOTICE] There is no remote called origin; commit and tag $tag stay local."
+    exit 0
+fi
+
+# --atomic: either the commit and the tag arrive, or neither of them
+if git push --atomic origin "$branch" "refs/tags/$tag" >&2; then
+    cgh_say "[NOTICE] Pushed $branch and $tag."
+else
+    cgh_say "[ERROR] The push failed. The version commit and the tag $tag are only local.
+Push them when you can:
+
+    git push --atomic origin $branch $tag
+"
+    exit 1
+fi

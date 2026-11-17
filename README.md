@@ -4,6 +4,7 @@ Shared git hooks for JIRA-style workflows:
 
 - **commit-msg:** puts the ticket of the branch name in front of the commit subject (`ABC-123: Fix it`, or `NOJIRA: …`).
 - **pre-commit:** checks the branch name (`ABC-123-some-topic` or `NOJIRA-some-topic`) and asks for confirmation before a commit to `master` / `main`.
+- **post-merge:** after `git merge` into `master` / `main`, a branch whose name ends with `-version-major|minor|patch|fix` bumps the npm version, tags it and pushes (Node projects).
 - **Several scripts per hook:** every hook runs the scripts of its `hooks.d/<hook>/` directory in order, so you can add your own next to ours.
 
 The hooks are copied into **your repository's `.githooks/` directory** and activated with `core.hooksPath`. They are committed with your code, so the whole team runs the same version.
@@ -59,6 +60,8 @@ npm install --save-dev github:inebhedj/custom-git-hooks#v3.0.0
 | `no_ticket` | `NOJIRA` | token used when there is no ticket |
 | `branch_regex` | `^(<ticket>\|<no_ticket>)-[a-zA-Z0-9-]+$` | ERE every new branch name has to match |
 | `protected_branches` | `master main` | space separated globs (`release/*`); `none` protects nothing |
+| `version_branches` | `master main` | space separated globs: a merge into these branches can bump the version |
+| `version_push` | `yes` | `no`: do not push the version commit and tag |
 
 ## What the hooks do
 
@@ -71,6 +74,17 @@ npm install --save-dev github:inebhedj/custom-git-hooks#v3.0.0
 ```sh
 CGH_ALLOW_PROTECTED=1 git commit ...
 ```
+
+**`post-merge/00-version-bump`**: after a `git merge` into `master` / `main` (see `version_branches`) it looks at the branches that point at the merged commit. If one of them ends with `-version-major`, `-version-minor`, `-version-patch` or `-version-fix` (the highest wins), it runs `npm version` (commit `NOJIRA: Releasing version X`, tag `vX`) and pushes the commit **and** the tag together (`git push --atomic`: both arrive or neither). If the push fails, the commit and tag stay local and the message tells you the command to retry.
+
+```sh
+git switch -c ABC-5-new-login-version-minor
+git commit -m "..."
+git switch master
+git merge -
+```
+
+It needs a `package.json` and `npm`. It does **not** run after `git pull` (also not when you pull a merge that was made on GitHub; for that see [`templates/release-on-merge.yml`](templates/release-on-merge.yml)) and not for `git merge --squash`.
 
 ### Skipping and debugging
 
@@ -98,7 +112,7 @@ Exit status 0 means fine, 1 means something is wrong. A ready-to-copy GitHub wor
 
 Releases are made by hand: Actions → **Release** → "Run workflow" (on the default branch) with `release` (drops the `-dev` suffix), `major`, `minor`, `patch` or an explicit `X.Y.Z`. It runs the tests, bumps `VERSION` and `package.json` (`scripts/bump-version.sh`), commits `NOJIRA: Releasing version X`, tags `vX` and pushes. Without GitHub: `sh scripts/bump-version.sh release`, then commit and tag yourself.
 
-For your own projects, [`templates/release-on-merge.yml`](templates/release-on-merge.yml) does what the old `post-merge` hook did: a merged branch ending in `-version-minor` (and so on) bumps the version with `npm version`, tags and pushes.
+For your own projects the version bump is done by the `post-merge` hook (see above) when you merge locally. If you merge pull requests on GitHub instead, [`templates/release-on-merge.yml`](templates/release-on-merge.yml) does the same on the server: a merged branch ending in `-version-minor` (and so on) bumps the version with `npm version`, tags and pushes. Use one of the two, not both.
 
 ## Migrating from v1/v2
 
@@ -107,7 +121,7 @@ v1/v2 copied the hooks into `.git/hooks/` and kept the scripts in `.git/hooks/<h
 1. Run `install.sh`. It tells you which old skeleton hooks it found.
 2. Scripts you added yourself to `.git/hooks/<hook>.d/` are **not** run any more. Move them to `.githooks/hooks.d/<hook>/` and run `install.sh` again.
 3. Delete the old `.git/hooks/*.d` directories and, if you like, the `custom-git-hooks/` lines from your `.gitignore`.
-4. Replaced: the `post-merge` version bump does not run on developers' machines any more (it also looked at the wrong branch); the same rule (`-version-major|minor|patch|fix` at the end of the merged branch name) is now a CI workflow, see [`templates/release-on-merge.yml`](templates/release-on-merge.yml). The `postinstall-cgh.js` helper is replaced by `cgh prepare`, see [Node projects](#node-projects-npm).
+4. The `post-merge` version bump is still there with the same rule (`-version-major|minor|patch|fix` at the end of the merged branch name), with its bugs fixed: it finds the merged branch among the branches at the merged commit (v2 took the list of all local branches), it does not run after `git pull`, it is plain POSIX sh, and it pushes the version commit together with the tag (v2 pushed the tag only). The `postinstall-cgh.js` helper is replaced by `cgh prepare`, see [Node projects](#node-projects-npm).
 
 ## Development
 

@@ -13,13 +13,14 @@ Rewrite. The hooks now live in a versioned `.githooks/` directory of your projec
 - `scripts/bump-version.sh`, a manual Release workflow, and workflow templates (`templates/`) for the version bump on merge and for the pull request check.
 - Tests (`sh tests/run.sh`) and a manually started CI workflow (shellcheck, dash, Ubuntu and macOS).
 
+- `post-merge/00-version-bump`: the v2 version bump after merging a `-version-major|minor|patch|fix` branch into master / main, rewritten: it looks at the branches at the merged commit instead of all local branches, runs only after `git merge` (not `git pull`), is POSIX sh, and pushes the version commit and the tag together (`git push --atomic`). New settings `version_branches` and `version_push`.
+
 ### Changed
 - The commit-msg hook changes only the subject line; body and comments are kept (v2 joined everything into one line).
 - Protected branches: the commit is rejected when there is no terminal, unless `CGH_ALLOW_PROTECTED=1`.
 - Hooks are POSIX sh (no more `[[ ]]` or `${var//}` under `#!/bin/sh`).
 
 ### Removed
-- The `post-merge` version bump hook (it used the list of all local branches as "the merged branch", and ran on every pull): replaced by the `release-on-merge` workflow template.
 - `custom-git-hooks-install.sh`, `data/`, `postinstall-cgh.js`, `VERSION.md`.
 
 ### Fixed
