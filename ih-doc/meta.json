@@ -14,7 +14,7 @@
     "versioning",
     "nodejs"
   ],
-  "licenseUrl": "https://github.com/inebhedj/ih-cgh/blob/master/ISC-LICENSE.md",
+  "licenseUrl": "https://opensource.org/license/isc",
   "supportedLanguages": ["en", "hu"],
   "defaultLanguage": "en"
 }
