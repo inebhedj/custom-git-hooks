@@ -1,0 +1,9 @@
+{
+  "slug": "ih-cgh",
+  "name": "ih-cgh",
+  "fullName": "IH Custom Git Hooks",
+  "startYear": 2020,
+  "licenseUrl": "https://github.com/inebhedj/ih-cgh/blob/master/ISC-LICENSE.md",
+  "supportedLanguages": ["en", "hu"],
+  "defaultLanguage": "en"
+}
