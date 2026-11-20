@@ -2,7 +2,18 @@
   "slug": "ih-cgh",
   "name": "ih-cgh",
   "fullName": "IH Custom Git Hooks",
+  "installCommand": "npm install --save-dev @inebhedj/ih-cgh",
   "startYear": 2020,
+  "githubUrl": "https://github.com/inebhedj/ih-cgh",
+  "tags": [
+    "git",
+    "git-hooks",
+    "githooks",
+    "commit-message",
+    "branch-name",
+    "versioning",
+    "nodejs"
+  ],
   "licenseUrl": "https://github.com/inebhedj/ih-cgh/blob/master/ISC-LICENSE.md",
   "supportedLanguages": ["en", "hu"],
   "defaultLanguage": "en"
