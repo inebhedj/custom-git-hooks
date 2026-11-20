@@ -1,5 +1,5 @@
 {
-  "name": "custom-git-hooks",
+  "name": "ih-cgh",
   "version": "3.0.0",
   "description": "Shared git hooks for JIRA-style workflows: ticket prefix in commit messages, branch name check, protected branches",
   "author": {
@@ -8,12 +8,23 @@
     "url": "https://github.com/inebhedj/"
   },
   "license": "ISC",
+  "keywords": [
+    "git",
+    "git-hooks",
+    "githooks",
+    "jira",
+    "commit-message",
+    "branch-name",
+    "conventional-workflow",
+    "versioning",
+    "custom-hooks"
+  ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/inebhedj/custom-git-hooks.git"
+    "url": "git+https://github.com/inebhedj/ih-cgh.git"
   },
-  "homepage": "https://github.com/inebhedj/custom-git-hooks#readme",
-  "bugs": "https://github.com/inebhedj/custom-git-hooks/issues",
+  "homepage": "https://github.com/inebhedj/ih-cgh#readme",
+  "bugs": "https://github.com/inebhedj/ih-cgh/issues",
   "private": true,
   "bin": {
     "cgh": "bin/cgh"
