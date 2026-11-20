@@ -49,7 +49,7 @@
   "hooksSection": "A hookok részletesen",
   "hooksListSection": "A szkriptek",
   "hooksListTitle": "A hookok szkriptjei",
-  "hookJiraPrefix": "Az ágnév elejéről átveszi a ticketet, és a commit tárgya elé teszi. A törzset és a megjegyzéseket nem bántja. Nem csinál semmit, ha a tárgy már tickettel kezdődik, fixup és squash commitoknál, merge-nél, rebase-nél, cherry-picknél és leválasztott HEAD esetén.",
+  "hookTicketPrefix": "Az ágnév elejéről átveszi a ticketet, és a commit tárgya elé teszi. A törzset és a megjegyzéseket nem bántja. Nem csinál semmit, ha a tárgy már tickettel kezdődik, fixup és squash commitoknál, merge-nél, rebase-nél, cherry-picknél és leválasztott HEAD esetén.",
   "hookBranchName": "Az új ágat (amelynek még nincs saját commitja) elutasítja, ha a neve nem illeszkedik a branch_regex-re, és javaslatot tesz az átnevezésre. A rossz nevű régi ágra csak figyelmeztet.",
   "hookProtectedBranch": "Megerősítést kér, mielőtt védett ágra commitolnál. Terminál nélkül (IDE, szkriptek) a commit elutasításra kerül, hacsak kifejezetten felül nem bírálod.",
   "hookVersionBump": "Verzióágba történő git merge után megnézi az egyesített commitra mutató ágakat, és megnöveli a verziót, ha valamelyik -version-major, -version-minor, -version-patch vagy -version-fix végű.",

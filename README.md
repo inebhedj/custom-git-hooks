@@ -14,9 +14,9 @@ The hooks are copied into **your repository's `.githooks/` directory** and activ
 Run the installer from the repository you want to set up (any clone of this repo will do; there is no need to keep it inside your project):
 
 ```sh
-git clone git@github.com:inebhedj/ih-cgh.git ~/tools/custom-git-hooks   # once
+git clone git@github.com:inebhedj/ih-cgh.git ~/tools/ih-cgh   # once
 cd /path/to/your/project
-sh ~/tools/custom-git-hooks/install.sh
+sh ~/tools/ih-cgh/install.sh
 git add .githooks && git commit
 ```
 
@@ -63,7 +63,7 @@ npm install --save-dev github:inebhedj/ih-cgh
 
 ## What the hooks do
 
-**`commit-msg/00-jira-prefix`**: takes the ticket from the start of the branch name and prepends it to the commit subject. The body and comments are left alone. Nothing happens if the subject already starts with a ticket (a different one only gives a notice), for `fixup!`/`squash!` commits, merges, rebases, cherry-picks and a detached HEAD.
+**`commit-msg/00-ticket-prefix`**: takes the ticket from the start of the branch name and prepends it to the commit subject. The body and comments are left alone. Nothing happens if the subject already starts with a ticket (a different one only gives a notice), for `fixup!`/`squash!` commits, merges, rebases, cherry-picks and a detached HEAD.
 
 **`pre-commit/00-branch-name`**: a new branch (one without commits of its own) whose name does not match `branch_regex` is rejected, with a suggestion how to rename it. An old branch with a bad name only gets a notice.
 
@@ -87,7 +87,7 @@ It needs a `package.json` and `npm`. It does **not** run after `git pull` (also 
 ### Skipping and debugging
 
 - `git commit --no-verify` skips `pre-commit` and `commit-msg` as usual. Client-side hooks can always be bypassed, so enforce important rules in CI as well.
-- `CGH_SKIP=1 git ...` skips all custom-git-hooks scripts for one command.
+- `CGH_SKIP=1 git ...` skips all ih-cgh scripts for one command.
 - `CGH_DEBUG=1 git ...` prints every script that is run.
 
 ## Adding your own hooks
