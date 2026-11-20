@@ -1,6 +1,7 @@
 #!/bin/sh
 # Checks the branch name (default: <ticket>-<letters, digits and hyphens>, where
-# <ticket> is a JIRA key like ABC-123 or NOJIRA).
+# <ticket> is a ticket key (by default JIRA style, like ABC-123; see ticket_regex)
+# or NOJIRA).
 #
 # * a new branch (one without commits of its own) with a bad name: commit is
 #   rejected
@@ -44,9 +45,9 @@ Branch names in this project have to match:
 
     $regex
 
-(start with the JIRA ticket, eg. ABC-123, or with $(cgh_no_ticket); then only
-letters, digits and hyphens). The commit is rejected. Rename the branch and
-try again, eg.:
+(start with a ticket key, eg. ABC-123 with the default ticket_regex, or with
+$(cgh_no_ticket); then only letters, digits and hyphens). The commit is
+rejected. Rename the branch and try again, eg.:
 
     git branch -m $suggestion
 "
