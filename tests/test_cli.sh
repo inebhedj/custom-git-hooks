@@ -34,7 +34,7 @@ test_prepare_installs_quietly() {
     link_cgh
     run "$CGH" prepare
     assert_rc 0
-    assert_eq 'custom-git-hooks: hooks installed' "$OUT"
+    assert_eq 'ih-cgh: hooks installed' "$OUT"
     assert_eq .githooks "$(git config --local core.hooksPath)"
 }
 

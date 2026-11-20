@@ -1,12 +1,12 @@
 #!/bin/sh
-# custom-git-hooks installer.
+# ih-cgh installer.
 #
 # Copies the hooks into <repository>/.githooks (so they can be committed and
-# shared with the team) and points `core.hooksPath` at that directory.
+# shared) and points `core.hooksPath` at that directory.
 #
 # Run it from the repository you want to set up, or pass the repository:
 #
-#   sh /path/to/custom-git-hooks/install.sh [options] [repository]
+#   sh /path/to/ih-cgh/install.sh [options] [repository]
 
 set -eu
 
@@ -14,7 +14,9 @@ SRC=$(cd "$(dirname "$0")" && pwd -P)
 PAYLOAD="$SRC/payload"
 VERSION=$(cat "$SRC/VERSION.md" 2>/dev/null || echo unknown)
 
-STUB_MARK='custom-git-hooks stub'
+STUB_MARK='ih-cgh stub'
+# the mark of the stubs written by older versions (still recognised)
+OLD_STUB_MARK='custom-git-hooks stub'
 
 die() {
     echo "install.sh: $*" >&2
@@ -25,7 +27,7 @@ usage() {
     cat <<EOF
 Usage: sh install.sh [options] [repository]
 
-Installs (or updates) custom-git-hooks $VERSION into <repository>/.githooks
+Installs (or updates) ih-cgh $VERSION into <repository>/.githooks
 (default: the repository of the current directory) and sets core.hooksPath.
 
 Options:
@@ -98,7 +100,7 @@ write_stub() {
 }
 
 is_stub() {
-    [ -f "$1" ] && grep -q "$STUB_MARK" "$1"
+    [ -f "$1" ] && grep -q -e "$STUB_MARK" -e "$OLD_STUB_MARK" "$1"
 }
 
 # files managed by the installer: payload files except the seed configuration
@@ -137,7 +139,7 @@ old_manifest_files() {
 
 do_uninstall() {
     [ -f "$manifest" ] || die "nothing to uninstall: $manifest does not exist"
-    echo "Uninstalling custom-git-hooks from $dest"
+    echo "Uninstalling ih-cgh from $dest"
     old_manifest_files | while IFS= read -r f; do
         if [ -n "$f" ] && [ -e "$dest/$f" ]; then
             act rm -f "$dest/$f"
@@ -164,7 +166,7 @@ do_install() {
         die "core.hooksPath is already set to '$cur'. Use --force to replace it, or --dir '$cur' to install there."
     fi
 
-    echo "Installing custom-git-hooks $VERSION into $dest"
+    echo "Installing ih-cgh $VERSION into $dest"
 
     new_list=$(payload_files)
 
@@ -221,7 +223,7 @@ do_install() {
     for hook in "$common"/hooks/*; do
         [ -f "$hook" ] || continue
         grep -q 'CUSTOM-GIT-HOOK-SKELETON' "$hook" || continue
-        echo "NOTE: $hook is from an older custom-git-hooks version; its ${hook##*/}.d/ scripts are no longer run."
+        echo "NOTE: $hook is from an older version of ih-cgh; its ${hook##*/}.d/ scripts are no longer run."
         echo "      Move scripts you still need into $dest_name/hooks.d/${hook##*/}/ and delete the old ones."
     done
 
@@ -229,9 +231,9 @@ do_install() {
 
 Done. Next steps:
   * review $dest_name/cgh.conf (ticket format, protected branches, ...)
-  * commit the $dest_name directory so that the whole team gets the same hooks:
+  * commit the $dest_name directory so that everyone who clones the repository gets the same hooks:
       git add $dest_name && git commit
-  * teammates enable it with:  sh install.sh   (or: git config core.hooksPath $dest_name)
+  * after cloning, enable it with:  sh install.sh   (or: git config core.hooksPath $dest_name)
 EOF
 }
 

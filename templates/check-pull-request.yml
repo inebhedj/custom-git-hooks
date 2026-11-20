@@ -1,4 +1,4 @@
-# TEMPLATE for projects that use custom-git-hooks - this file is NOT active in
+# TEMPLATE for projects that use ih-cgh - this file is NOT active in
 # this repository. Copy it to your project's .github/workflows/.
 #
 # Client-side hooks can be skipped (`git commit --no-verify`), so this repeats

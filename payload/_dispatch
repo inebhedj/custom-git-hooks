@@ -1,5 +1,5 @@
 #!/bin/sh
-# custom-git-hooks dispatcher.
+# ih-cgh dispatcher.
 #
 # Every hook stub (.githooks/<hook>) calls this script with the hook name:
 #
@@ -17,7 +17,7 @@
 
 hook=${1:-}
 if [ -z "$hook" ]; then
-    echo "custom-git-hooks: _dispatch needs a hook name" >&2
+    echo "ih-cgh: _dispatch needs a hook name" >&2
     exit 2
 fi
 shift
@@ -44,7 +44,7 @@ for script in "$CGH_HOME/hooks.d/$hook"/*; do
     case $script in
         *.sample | *.backup | *.disabled) continue ;;
     esac
-    [ "${CGH_DEBUG:-0}" = 1 ] && echo "custom-git-hooks: running $script" >&2
+    [ "${CGH_DEBUG:-0}" = 1 ] && echo "ih-cgh: running $script" >&2
     "$script" "$@" <"$stdin_copy" || exit $?
 done
 
@@ -54,7 +54,7 @@ if common_dir=$(git rev-parse --git-common-dir 2>/dev/null); then
     legacy="$common_dir/hooks/$hook"
     if [ -f "$legacy" ] && [ -x "$legacy" ] &&
         ! grep -q 'CUSTOM-GIT-HOOK-SKELETON' "$legacy"; then
-        [ "${CGH_DEBUG:-0}" = 1 ] && echo "custom-git-hooks: running legacy $legacy" >&2
+        [ "${CGH_DEBUG:-0}" = 1 ] && echo "ih-cgh: running legacy $legacy" >&2
         "$legacy" "$@" <"$stdin_copy" || exit $?
     fi
 fi
