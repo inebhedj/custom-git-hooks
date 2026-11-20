@@ -1,7 +1,7 @@
 # shellcheck shell=sh
-# Tests of payload/hooks.d/commit-msg/00-jira-prefix
+# Tests of payload/hooks.d/commit-msg/00-ticket-prefix
 
-HOOK=.githooks/hooks.d/commit-msg/00-jira-prefix
+HOOK=.githooks/hooks.d/commit-msg/00-ticket-prefix
 
 setup_branch() { # branch-name
     new_repo

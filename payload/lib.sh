@@ -1,5 +1,5 @@
 # shellcheck shell=sh
-# custom-git-hooks shared helpers (POSIX sh). Sourced by the hook scripts:
+# ih-cgh shared helpers (POSIX sh). Sourced by the hook scripts:
 #
 #   CGH_HOME=${CGH_HOME:-$(cd "$(dirname "$0")/../.." && pwd -P)}
 #   . "$CGH_HOME/lib.sh"
