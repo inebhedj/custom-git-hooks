@@ -1,0 +1,264 @@
+{
+  "schema": 1,
+  "content": {
+    "main": [
+      { "type": "h2", "key": "overviewSection" },
+      { "type": "text", "key": "overview" },
+      {
+        "type": "section-box",
+        "key": "featuresSection",
+        "blocks": [
+          {
+            "type": "list",
+            "items": [
+              { "key": "featCommitMsg" },
+              { "key": "featPreCommit" },
+              { "key": "featPostMerge" },
+              { "key": "featMultiple" }
+            ]
+          }
+        ]
+      },
+      { "type": "h2", "key": "installSection" },
+      {
+        "type": "section-box",
+        "key": "installCloneSection",
+        "intro": { "type": "text", "key": "installCloneIntro" },
+        "blocks": [
+          { "type": "h4", "key": "installCloneTitle" },
+          {
+            "type": "code",
+            "value": "git clone git@github.com:inebhedj/ih-cgh.git ~/tools/custom-git-hooks   # once\ncd /path/to/your/project\nsh ~/tools/custom-git-hooks/install.sh\ngit add .githooks && git commit",
+            "lang": "bash",
+            "numbered": false,
+            "collapsible": false
+          },
+          { "type": "h4", "key": "installTeamTitle" },
+          { "type": "text", "key": "installTeamText" },
+          {
+            "type": "code",
+            "value": "git config core.hooksPath .githooks",
+            "lang": "bash",
+            "numbered": false,
+            "collapsible": false
+          }
+        ]
+      },
+      {
+        "type": "section-box",
+        "key": "installNpmSection",
+        "intro": { "type": "text", "key": "installNpmIntro" },
+        "blocks": [
+          { "type": "h4", "key": "installNpmTitle" },
+          {
+            "type": "code",
+            "value": "npm install --save-dev github:inebhedj/ih-cgh",
+            "lang": "bash",
+            "numbered": false,
+            "collapsible": false
+          },
+          {
+            "type": "code",
+            "value": "{\n  \"scripts\": {\n    \"prepare\": \"cgh prepare\"\n  }\n}",
+            "lang": "json",
+            "numbered": false,
+            "collapsible": false
+          },
+          { "type": "text", "key": "installNpmNote" }
+        ]
+      },
+      {
+        "type": "section-box",
+        "key": "installOptionsSection",
+        "blocks": [
+          { "type": "h4", "key": "installOptionsTitle" },
+          { "type": "text", "key": "installOptionsIntro" },
+          {
+            "type": "pairs",
+            "items": [
+              { "term": { "value": "--dry-run" }, "description": { "key": "optDryRun" } },
+              { "term": { "value": "--uninstall" }, "description": { "key": "optUninstall" } },
+              { "term": { "value": "--dir NAME" }, "description": { "key": "optDir" } },
+              { "term": { "value": "--force" }, "description": { "key": "optForce" } }
+            ]
+          }
+        ]
+      },
+      { "type": "h2", "key": "configSection" },
+      {
+        "type": "section-box",
+        "key": "configTableSection",
+        "intro": { "type": "text", "key": "configIntro" },
+        "blocks": [
+          { "type": "h4", "key": "configTitle" },
+          {
+            "type": "table",
+            "caption": "configCaption",
+            "columns": [
+              { "title": "colKey" },
+              { "title": "colDefault" },
+              { "title": "colMeaning" }
+            ],
+            "rows": [
+              [
+                { "th": true, "content": [{ "type": "code", "value": "ticket_regex" }] },
+                { "content": [{ "type": "code", "value": "[A-Z][A-Z0-9]+-[0-9]+" }] },
+                { "content": [{ "type": "text", "key": "cfgTicketRegex" }] }
+              ],
+              [
+                { "th": true, "content": [{ "type": "code", "value": "no_ticket" }] },
+                { "content": [{ "type": "code", "value": "NOJIRA" }] },
+                { "content": [{ "type": "text", "key": "cfgNoTicket" }] }
+              ],
+              [
+                { "th": true, "content": [{ "type": "code", "value": "branch_regex" }] },
+                { "content": [{ "type": "code", "value": "^(<ticket>|<no_ticket>)-[a-zA-Z0-9-]+$" }] },
+                { "content": [{ "type": "text", "key": "cfgBranchRegex" }] }
+              ],
+              [
+                { "th": true, "content": [{ "type": "code", "value": "protected_branches" }] },
+                { "content": [{ "type": "code", "value": "master main" }] },
+                { "content": [{ "type": "text", "key": "cfgProtectedBranches" }] }
+              ],
+              [
+                { "th": true, "content": [{ "type": "code", "value": "version_branches" }] },
+                { "content": [{ "type": "code", "value": "master main" }] },
+                { "content": [{ "type": "text", "key": "cfgVersionBranches" }] }
+              ],
+              [
+                { "th": true, "content": [{ "type": "code", "value": "version_push" }] },
+                { "content": [{ "type": "code", "value": "yes" }] },
+                { "content": [{ "type": "text", "key": "cfgVersionPush" }] }
+              ]
+            ]
+          },
+          { "type": "h4", "key": "configCustomTitle" },
+          { "type": "text", "key": "configCustomText" },
+          {
+            "type": "code",
+            "value": "git config cgh.ticket-regex '[A-Z]+_[0-9]+'   # PROJ_12-fix-it  ->  PROJ_12: Fix it\ngit config cgh.ticket-regex '#[0-9]+'         # #123-fix-it    ->  #123: Fix it",
+            "lang": "bash",
+            "numbered": false,
+            "collapsible": false
+          }
+        ]
+      },
+      { "type": "h2", "key": "hooksSection" },
+      {
+        "type": "section-box",
+        "key": "hooksListSection",
+        "blocks": [
+          { "type": "h4", "key": "hooksListTitle" },
+          {
+            "type": "pairs",
+            "items": [
+              { "term": { "value": "commit-msg/00-jira-prefix" }, "description": { "key": "hookJiraPrefix" } },
+              { "term": { "value": "pre-commit/00-branch-name" }, "description": { "key": "hookBranchName" } },
+              { "term": { "value": "pre-commit/10-protected-branch" }, "description": { "key": "hookProtectedBranch" } },
+              { "term": { "value": "post-merge/00-version-bump" }, "description": { "key": "hookVersionBump" } }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "section-box",
+        "key": "protectedSection",
+        "blocks": [
+          { "type": "h4", "key": "protectedTitle" },
+          { "type": "text", "key": "protectedText" },
+          {
+            "type": "code",
+            "value": "CGH_ALLOW_PROTECTED=1 git commit ...",
+            "lang": "bash",
+            "numbered": false,
+            "collapsible": false
+          }
+        ]
+      },
+      {
+        "type": "section-box",
+        "key": "versionSection",
+        "blocks": [
+          { "type": "h4", "key": "versionTitle" },
+          { "type": "text", "key": "versionText" },
+          {
+            "type": "code",
+            "value": "git switch -c ABC-5-new-login-version-minor\ngit commit -m \"...\"\ngit switch master\ngit merge -",
+            "lang": "bash",
+            "numbered": false,
+            "collapsible": false
+          },
+          { "type": "text", "file": "version-note" }
+        ]
+      },
+      { "type": "h2", "key": "usageSection" },
+      {
+        "type": "section-box",
+        "key": "skipSection",
+        "blocks": [
+          { "type": "h4", "key": "skipTitle" },
+          {
+            "type": "pairs",
+            "items": [
+              { "term": { "value": "git commit --no-verify" }, "description": { "key": "skipNoVerify" } },
+              { "term": { "value": "CGH_SKIP=1 git ..." }, "description": { "key": "skipCghSkip" } },
+              { "term": { "value": "CGH_DEBUG=1 git ..." }, "description": { "key": "skipCghDebug" } }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "section-box",
+        "key": "ownHooksSection",
+        "blocks": [
+          { "type": "h4", "key": "ownHooksTitle" },
+          { "type": "text", "key": "ownHooksText" },
+          {
+            "type": "code",
+            "value": ".githooks/hooks.d/pre-push/50-tests",
+            "lang": "text",
+            "numbered": false,
+            "collapsible": false
+          },
+          { "type": "text", "key": "ownHooksNote" }
+        ]
+      },
+      {
+        "type": "section-box",
+        "key": "serverSection",
+        "blocks": [
+          { "type": "h4", "key": "serverTitle" },
+          { "type": "text", "key": "serverText" },
+          {
+            "type": "code",
+            "value": "sh .githooks/cgh-check --base origin/main --branch \"$BRANCH\"",
+            "lang": "bash",
+            "numbered": false,
+            "collapsible": false
+          },
+          { "type": "text", "file": "server-note" }
+        ]
+      }
+    ],
+    "aside": [
+      {
+        "type": "section-box",
+        "key": "notesSection",
+        "blocks": [
+          { "type": "h4", "key": "notesTitle" },
+          { "type": "text", "key": "notesRequirements" },
+          { "type": "text", "key": "notesTests" },
+          {
+            "type": "code",
+            "value": "sh tests/run.sh",
+            "lang": "bash",
+            "numbered": false,
+            "collapsible": false
+          },
+          { "type": "text", "file": "notes-contributing" },
+          { "type": "text", "file": "notes-license" }
+        ]
+      }
+    ]
+  }
+}
