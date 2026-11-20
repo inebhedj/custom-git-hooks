@@ -1,0 +1,8 @@
+*
+!bin/**
+!payload/**
+!install.sh
+!VERSION.md
+!README.md
+!ISC-LICENSE.md
+!package.json

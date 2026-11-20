@@ -1,5 +1,5 @@
 {
-  "name": "ih-cgh",
+  "name": "@inebhedj/ih-cgh",
   "version": "3.0.0",
   "description": "Shared git hooks for ticket-based workflows (JIRA-style keys by default, configurable): ticket prefix in commit messages, branch name check, protected branches",
   "author": {
@@ -23,9 +23,11 @@
     "type": "git",
     "url": "git+https://github.com/inebhedj/ih-cgh.git"
   },
-  "homepage": "https://github.com/inebhedj/ih-cgh#readme",
+  "homepage": "https://inebhedj.hu/ih-cgh",
   "bugs": "https://github.com/inebhedj/ih-cgh/issues",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "bin": {
     "cgh": "bin/cgh"
   },
@@ -37,6 +39,7 @@
     "ISC-LICENSE.md"
   ],
   "scripts": {
-    "test": "sh tests/run.sh"
+    "test": "sh tests/run.sh",
+    "publish:npm": "npm login && npm publish --access public"
   }
 }

@@ -52,7 +52,7 @@
           { "type": "h4", "key": "installNpmTitle" },
           {
             "type": "code",
-            "value": "npm install --save-dev github:inebhedj/ih-cgh",
+            "value": "npm install --save-dev @inebhedj/ih-cgh",
             "lang": "bash",
             "numbered": false,
             "collapsible": false

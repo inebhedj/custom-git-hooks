@@ -1,0 +1,47 @@
+name: Publish to npm
+
+# Starts only when you publish a GitHub Release (never on push or pull request).
+# Authentication is npm trusted publishing (OIDC): no npm token is stored here.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write # required for npm trusted publishing (OIDC)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Verify the tag matches package.json and VERSION.md
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          PKG_VERSION="v$(node -p "require('./package.json').version")"
+          FILE_VERSION="v$(cat VERSION.md)"
+          if [ "$PKG_VERSION" != "$TAG" ] || [ "$FILE_VERSION" != "$TAG" ]; then
+            echo "Tag $TAG, package.json $PKG_VERSION and VERSION.md $FILE_VERSION have to be the same"
+            exit 1
+          fi
+
+      - name: shellcheck
+        run: |
+          shellcheck -x -s sh -S warning \
+            install.sh bin/cgh \
+            payload/_dispatch payload/cgh-check payload/lib.sh payload/hooks.d/*/* \
+            tests/run.sh tests/lib.sh tests/test_*.sh
+
+      - name: Tests
+        run: sh tests/run.sh
+
+      # No NODE_AUTH_TOKEN: authentication happens via OIDC trusted publishing.
+      - name: Publish
+        run: npm publish --access public --provenance

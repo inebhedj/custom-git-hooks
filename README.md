@@ -31,7 +31,7 @@ git config core.hooksPath .githooks
 Instead of cloning, add the package and let `npm install` set up the hooks:
 
 ```sh
-npm install --save-dev github:inebhedj/ih-cgh
+npm install --save-dev @inebhedj/ih-cgh
 ```
 
 ```json
@@ -104,7 +104,7 @@ Client-side hooks can be skipped, so `install.sh` also puts `.githooks/cgh-check
 sh .githooks/cgh-check --base origin/main --branch "$BRANCH"
 ```
 
-Exit status 0 means fine, 1 means something is wrong. A ready-to-copy GitHub workflow is in [`templates/check-pull-request.yml`](templates/check-pull-request.yml). The files in `templates/` are **not active**; nothing in this repository starts automatically.
+Exit status 0 means fine, 1 means something is wrong. A ready-to-copy GitHub workflow is in [`templates/check-pull-request.yml`](templates/check-pull-request.yml). The files in `templates/` are **not active**: they are only templates to copy into your project.
 
 ## Contributing
 
