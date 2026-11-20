@@ -1,4 +1,4 @@
-# custom-git-hooks
+# ih-cgh - ih custom git hooks
 
 Shared git hooks for JIRA-style workflows:
 
@@ -7,20 +7,20 @@ Shared git hooks for JIRA-style workflows:
 - **post-merge:** after `git merge` into `master` / `main`, a branch whose name ends with `-version-major|minor|patch|fix` bumps the npm version, tags it and pushes (Node projects).
 - **Several scripts per hook:** every hook runs the scripts of its `hooks.d/<hook>/` directory in order, so you can add your own next to ours.
 
-The hooks are copied into **your repository's `.githooks/` directory** and activated with `core.hooksPath`. They are committed with your code, so the whole team runs the same version.
+The hooks are copied into **your repository's `.githooks/` directory** and activated with `core.hooksPath`. They are committed with your code, so every clone runs the same version.
 
 ## Install
 
 Run the installer from the repository you want to set up (any clone of this repo will do; there is no need to keep it inside your project):
 
 ```sh
-git clone git@github.com:inebhedj/custom-git-hooks.git ~/tools/custom-git-hooks   # once
+git clone git@github.com:inebhedj/ih-cgh.git ~/tools/custom-git-hooks   # once
 cd /path/to/your/project
 sh ~/tools/custom-git-hooks/install.sh
 git add .githooks && git commit
 ```
 
-Teammates only need to enable the committed hooks after cloning (`install.sh` does the same, plus updates):
+After cloning, the committed hooks only need to be enabled (`install.sh` does the same, plus updates):
 
 ```sh
 git config core.hooksPath .githooks
@@ -31,7 +31,7 @@ git config core.hooksPath .githooks
 Instead of cloning, add the package and let `npm install` set up the hooks:
 
 ```sh
-npm install --save-dev github:inebhedj/custom-git-hooks
+npm install --save-dev github:inebhedj/ih-cgh
 ```
 
 ```json
