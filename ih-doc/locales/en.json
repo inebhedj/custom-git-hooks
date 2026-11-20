@@ -49,7 +49,7 @@
   "hooksSection": "Hooks in detail",
   "hooksListSection": "The scripts",
   "hooksListTitle": "Scripts of the hooks",
-  "hookJiraPrefix": "Takes the ticket from the start of the branch name and prepends it to the commit subject. The body and comments are left alone. Nothing happens if the subject already starts with a ticket, for fixup and squash commits, merges, rebases, cherry-picks and a detached HEAD.",
+  "hookTicketPrefix": "Takes the ticket from the start of the branch name and prepends it to the commit subject. The body and comments are left alone. Nothing happens if the subject already starts with a ticket, for fixup and squash commits, merges, rebases, cherry-picks and a detached HEAD.",
   "hookBranchName": "A new branch (one without commits of its own) whose name does not match branch_regex is rejected, with a suggestion how to rename it. An old branch with a bad name only gets a notice.",
   "hookProtectedBranch": "Asks for confirmation before a commit to a protected branch. Without a terminal (IDE, scripts) the commit is rejected, unless you override it explicitly.",
   "hookVersionBump": "After a git merge into a version branch it looks at the branches that point at the merged commit and bumps the version if one of them ends with -version-major, -version-minor, -version-patch or -version-fix.",

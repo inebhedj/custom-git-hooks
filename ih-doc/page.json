@@ -28,7 +28,7 @@
           { "type": "h4", "key": "installCloneTitle" },
           {
             "type": "code",
-            "value": "git clone git@github.com:inebhedj/ih-cgh.git ~/tools/custom-git-hooks   # once\ncd /path/to/your/project\nsh ~/tools/custom-git-hooks/install.sh\ngit add .githooks && git commit",
+            "value": "git clone git@github.com:inebhedj/ih-cgh.git ~/tools/ih-cgh   # once\ncd /path/to/your/project\nsh ~/tools/ih-cgh/install.sh\ngit add .githooks && git commit",
             "lang": "bash",
             "numbered": false,
             "collapsible": false
@@ -152,7 +152,7 @@
           {
             "type": "pairs",
             "items": [
-              { "term": { "value": "commit-msg/00-jira-prefix" }, "description": { "key": "hookJiraPrefix" } },
+              { "term": { "value": "commit-msg/00-ticket-prefix" }, "description": { "key": "hookTicketPrefix" } },
               { "term": { "value": "pre-commit/00-branch-name" }, "description": { "key": "hookBranchName" } },
               { "term": { "value": "pre-commit/10-protected-branch" }, "description": { "key": "hookProtectedBranch" } },
               { "term": { "value": "post-merge/00-version-bump" }, "description": { "key": "hookVersionBump" } }
