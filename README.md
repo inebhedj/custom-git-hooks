@@ -1,9 +1,9 @@
 # ih-cgh - ih custom git hooks
 
-Shared git hooks for JIRA-style workflows:
+Shared git hooks for ticket-based workflows. The ticket key is JIRA-style (`ABC-123`) by default, but the pattern is configurable (see `ticket_regex` below), so it does not depend on JIRA:
 
-- **commit-msg:** puts the ticket of the branch name in front of the commit subject (`ABC-123: Fix it`, or `NOJIRA: …`).
-- **pre-commit:** checks the branch name (`ABC-123-some-topic` or `NOJIRA-some-topic`) and asks for confirmation before a commit to `master` / `main`.
+- **commit-msg:** puts the ticket of the branch name in front of the commit subject (with the default settings `ABC-123: Fix it`, or `NOJIRA: …` when there is no ticket).
+- **pre-commit:** checks the branch name (with the default settings `ABC-123-some-topic` or `NOJIRA-some-topic`) and asks for confirmation before a commit to `master` / `main`.
 - **post-merge:** after `git merge` into `master` / `main`, a branch whose name ends with `-version-major|minor|patch|fix` bumps the npm version, tags it and pushes (Node projects).
 - **Several scripts per hook:** every hook runs the scripts of its `hooks.d/<hook>/` directory in order, so you can add your own next to ours.
 

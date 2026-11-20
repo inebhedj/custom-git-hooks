@@ -1,7 +1,7 @@
 {
   "name": "ih-cgh",
   "version": "3.0.0",
-  "description": "Shared git hooks for JIRA-style workflows: ticket prefix in commit messages, branch name check, protected branches",
+  "description": "Shared git hooks for ticket-based workflows (JIRA-style keys by default, configurable): ticket prefix in commit messages, branch name check, protected branches",
   "author": {
     "name": "VELKEI Tamás (vt / cjvt) @inebhedj",
     "email": "inebhedj@inebhedj.hu",
